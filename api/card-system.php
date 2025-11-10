@@ -174,7 +174,7 @@ if (isset($_GET['action'])) {
   <!-- <link rel="stylesheet" href="asset/css/style.css" /> -->
    <link rel="shortcut icon" href="asset/img/logo-small.svg" type="image/x-icon">
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
   <div class="wrap">
@@ -366,6 +366,6 @@ if (isset($_GET['action'])) {
 
   <div class="confetti" id="confetti" aria-hidden="true"></div>
 
-  <script src="js/script.js"></script>
+  <script src="../js/script.js"></script>
 </body>
 </html>

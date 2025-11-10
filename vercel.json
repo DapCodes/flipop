@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "api/**/*.php": {
+      "runtime": "vercel-php@0.7.4"
+    }
+  },
+  "routes": [
+    { "src": "^/(css|js|asset)/.*", "dest": "/$0" },
+    { "src": "^/$", "dest": "/api/card-system.php" },
+    { "src": "^(?!/(css|js|asset)/).*", "dest": "/api/card-system.php" }
+  ]
+}
