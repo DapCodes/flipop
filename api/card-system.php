@@ -364,6 +364,86 @@ header('Content-Type: text/html; charset=utf-8');
     </div>
   </div>
 
+  <div class="modal-backdrop" id="modalHow" role="dialog" aria-modal="true" aria-labelledby="howTitle" style="display:none">
+  <div class="modal large">
+    <h3 id="howTitle" class="modal-title">Cara Bermain</h3>
+
+    <div id="howGrid" class="how-grid" role="list">
+      <!-- Kartu 1 -->
+      <button class="how-card" role="listitem" aria-expanded="true">
+        <div class="how-num">1</div>
+        <div class="how-title">Pilih Mode</div>
+        <div class="how-sub">Solo, Duel, atau Time Trial</div>
+        <div class="how-body">
+          <p><b>Solo</b>: kejar waktu & langkah minimum.</p>
+          <p><b>Duel</b>: gantian, yang cocok dapat poin & tetap giliran.</p>
+          <p><b>Time Trial</b>: cocokkan semua sebelum waktu habis.</p>
+        </div>
+      </button>
+
+      <!-- Kartu 2 -->
+      <button class="how-card" role="listitem" aria-expanded="false">
+        <div class="how-num">2</div>
+        <div class="how-title">Masukkan Nama</div>
+        <div class="how-sub">Agar tampil di HUD & riwayat</div>
+        <div class="how-body">
+          <p>Nama tersimpan di localStorage agar otomatis terisi di sesi berikutnya.</p>
+        </div>
+      </button>
+
+      <!-- Kartu 3 -->
+      <button class="how-card" role="listitem" aria-expanded="false">
+        <div class="how-num">3</div>
+        <div class="how-title">Pilih Kesulitan</div>
+        <div class="how-sub">8, 16, atau 32 kartu</div>
+        <div class="how-body">
+          <p>Semakin banyak kartu, semakin menantang. Kamu juga bisa pilih kategori ikon.</p>
+        </div>
+      </button>
+
+      <!-- Kartu 4 -->
+      <button class="how-card" role="listitem" aria-expanded="false">
+        <div class="how-num">4</div>
+        <div class="how-title">Preview & Countdown</div>
+        <div class="how-sub">Opsional 10 detik</div>
+        <div class="how-body">
+          <p>Aktifkan <b>Preview 10s</b> untuk menghafal posisi. Lalu hitung mundur 3…2…1 dan game dimulai.</p>
+        </div>
+      </button>
+
+      <!-- Kartu 5 -->
+      <button class="how-card" role="listitem" aria-expanded="false">
+        <div class="how-num">5</div>
+        <div class="how-title">Aturan Main</div>
+        <div class="how-sub">Cocokkan 2 kartu yang sama</div>
+        <div class="how-body">
+          <p>Klik dua kartu. Jika cocok, kartu <b>terkunci</b>. Jika salah, kartu tertutup lagi.</p>
+          <p><b>Duel</b>: cocok → tetap giliran; salah → giliran lawan.</p>
+        </div>
+      </button>
+
+      <!-- Kartu 6 -->
+      <button class="how-card" role="listitem" aria-expanded="false">
+        <div class="how-num">6</div>
+        <div class="how-title">Menang / Kalah</div>
+        <div class="how-sub">Efek & penyimpanan skor</div>
+        <div class="how-body">
+          <p>Selesai semua pasangan → <b>Menang</b> (konfeti!). Time Trial habis waktu → <b>Kalah</b>.</p>
+          <p>Hasil tersimpan ke <b>Riwayat</b> & <b>Peringkat</b> (session server + local UI).</p>
+        </div>
+      </button>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn ghost" id="btnHowPrev">← Sebelumnya</button>
+      <div style="flex:1"></div>
+      <button class="btn ghost" id="btnCloseHow">Tutup</button>
+      <button class="btn primary" id="btnHowNext">Berikutnya →</button>
+    </div>
+  </div>
+</div>
+
+
   <div class="confetti" id="confetti" aria-hidden="true"></div>
 
   <!-- Konfigurasi endpoint API: taruh sebelum script.js -->

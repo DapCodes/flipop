@@ -229,12 +229,72 @@ document
   .addEventListener("click", openLeaderboard);
 document.getElementById("btnTheme").addEventListener("click", toggleTheme);
 
-// Welcome actions
-document.getElementById("btnCara").addEventListener("click", () => {
-  alert(
-    "Cocokkan 2 kartu yang sama.\n- Pilih mode (Solo/Duel/Time Trial) dan masukkan nama.\n- Pilih kesulitan & kategori ikon.\n- (Opsional) Preview 10 detik → 3..2..1 → Mulai!\n- Duel: jika cocok, tetap giliranmu; jika salah, pindah.\n- Selesai saat semua pasangan ditemukan."
-  );
-});
+document.getElementById("btnCara").addEventListener("click", openHowTo);
+
+function openHowTo() {
+  const how = document.getElementById("modalHow");
+  if (!how) return;
+  how.style.display = "grid";
+  // default fokus kartu pertama
+  const first = how.querySelector(".how-card");
+  if (first) {
+    how
+      .querySelectorAll(".how-card")
+      .forEach((c) => c.classList.remove("active"));
+    first.classList.add("active");
+    first.focus();
+  }
+}
+
+function closeHowTo() {
+  const how = document.getElementById("modalHow");
+  if (how) how.style.display = "none";
+}
+
+(function bindHowToEvents() {
+  const grid = document.getElementById("howGrid");
+  const btnClose = document.getElementById("btnCloseHow");
+  const btnNext = document.getElementById("btnHowNext");
+  const btnPrev = document.getElementById("btnHowPrev");
+
+  if (btnClose) btnClose.addEventListener("click", closeHowTo);
+
+  if (grid) {
+    grid.addEventListener("click", (e) => {
+      const card = e.target.closest(".how-card");
+      if (!card) return;
+      grid
+        .querySelectorAll(".how-card")
+        .forEach((c) => c.classList.remove("active"));
+      card.classList.add("active");
+      card.focus();
+    });
+  }
+
+  function step(dir) {
+    if (!grid) return;
+    const cards = [...grid.querySelectorAll(".how-card")];
+    const idx = cards.findIndex((c) => c.classList.contains("active"));
+    if (idx === -1) return;
+    const nextIdx = (idx + dir + cards.length) % cards.length;
+    cards.forEach((c) => c.classList.remove("active"));
+    cards[nextIdx].classList.add("active");
+    cards[nextIdx].focus();
+  }
+
+  if (btnNext) btnNext.addEventListener("click", () => step(1));
+  if (btnPrev) btnPrev.addEventListener("click", () => step(-1));
+
+  // Keyboard: ← → untuk pindah; Esc untuk tutup
+  window.addEventListener("keydown", (e) => {
+    const how = document.getElementById("modalHow");
+    if (!how || how.style.display !== "grid") return;
+    if (e.key === "ArrowRight") step(1);
+    else if (e.key === "ArrowLeft") step(-1);
+    else if (e.key === "Escape") closeHowTo();
+  });
+})();
+
 document.getElementById("btnMulai").addEventListener("click", () => {
   if (!state.mode) state.mode = "solo";
   openNameModal();

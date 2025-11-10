@@ -2206,3 +2206,83 @@
      user-select: none !important;
      z-index: 1 !important;
  }
+
+ /* ===== Cara Main: kartu interaktif ===== */
+ .how-grid {
+     display: grid;
+     grid-template-columns: repeat(3, minmax(0, 1fr));
+     gap: 12px;
+ }
+
+ @media (max-width: 900px) {
+     .how-grid {
+         grid-template-columns: repeat(2, minmax(0, 1fr));
+     }
+ }
+
+ @media (max-width: 520px) {
+     .how-grid {
+         grid-template-columns: 1fr;
+     }
+ }
+
+ .how-card {
+     border: 2px solid var(--ring);
+     border-radius: 14px;
+     background: var(--card-front);
+     box-shadow: 0 6px 16px var(--shadow);
+     padding: 14px;
+     text-align: left;
+     display: grid;
+     gap: 6px;
+     cursor: pointer;
+     transition: border-color .15s ease, transform .06s ease, box-shadow .2s ease;
+     outline: none;
+ }
+
+ .how-card:hover,
+ .how-card:focus {
+     border-color: var(--brand-grad2);
+     transform: translateY(-2px);
+ }
+
+ .how-card .how-num {
+     width: 32px;
+     height: 32px;
+     border-radius: 10px;
+     display: grid;
+     place-items: center;
+     font-weight: 900;
+     background: linear-gradient(135deg, var(--brand-grad1), var(--brand-grad2));
+     color: #fff;
+     font-size: 14px;
+ }
+
+ .how-card .how-title {
+     font-weight: 800;
+     font-size: clamp(15px, 3vw, 18px);
+ }
+
+ .how-card .how-sub {
+     color: var(--muted);
+     font-size: 12px;
+ }
+
+ .how-card .how-body {
+     display: none;
+     font-size: 14px;
+     line-height: 1.5;
+     color: var(--text);
+     padding-top: 6px;
+     border-top: 1px solid var(--ring);
+ }
+
+ .how-card.active .how-body {
+     display: block;
+ }
+
+ /* aksesibilitas visual saat aktif */
+ .how-card.active {
+     outline: 2px solid var(--brand-grad2);
+     outline-offset: 2px;
+ }
