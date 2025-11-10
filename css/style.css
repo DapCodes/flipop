@@ -577,12 +577,30 @@
      user-select: none;
  }
 
+ /* Ukuran ikon kartu lebih besar dan responsif */
  .face {
-     font-size: clamp(20px, 4vw, 42px);
+     font-size: clamp(28px, 6vw, 60px);
      background: var(--card-front);
      color: var(--text);
      transform: rotateY(180deg);
  }
+
+ /* === BESARKAN IKON KHUSUS MOBILE (versi lebih kecil & pas) === */
+ @media (max-width: 480px) {
+     .face {
+         font-size: clamp(30px, 8vw, 68px) !important;
+         line-height: 1.1;
+     }
+ }
+
+ /* ekstra kecil (≤360px) */
+ @media (max-width: 360px) {
+     .face {
+         font-size: clamp(28px, 9vw, 70px) !important;
+     }
+ }
+
+
 
  .back {
      background: linear-gradient(135deg, var(--card-back1), var(--card-back2));
@@ -591,37 +609,6 @@
      letter-spacing: 1px;
      position: relative;
      overflow: hidden;
- }
-
- /* Logo tetap (pindah ke ::before) */
- .back::before {
-     content: "";
-     position: absolute;
-     inset: 0;
-     background-image: url('asset/img/logo.png') !important;
-     background-repeat: no-repeat;
-     background-position: center;
-     background-size: 65% auto;
-     opacity: .85;
-     border-radius: inherit;
- }
-
- /* Teks Flipop di atasnya */
- .back::after {
-     content: "Flipop";
-     position: absolute;
-     inset: 0;
-     display: grid;
-     place-items: center;
-     font-weight: 900;
-     letter-spacing: 2px;
-     text-transform: uppercase;
-     font-size: clamp(16px, 4.5vw, 38px);
-     color: #111827;
-     opacity: .2;
-     /* cukup halus agar tidak ganggu */
-     pointer-events: none;
-     border-radius: inherit;
  }
 
 
@@ -1555,12 +1542,6 @@
      /* tegas tapi halus */
  }
 
- /* Pastikan path logo Anda benar: asset/img/logo.png */
- .back::after {
-     background-image: url('asset/img/logo.png') !important;
-     opacity: .9;
-     /* logo sedikit tegas */
- }
 
  /* Board benar-benar di tengah dan aman ukuran lebarnya */
  .board-wrap {
@@ -1645,18 +1626,6 @@
  }
 
  /* logo di belakang kartu (pakai file Anda) */
- .back::after {
-     content: "";
-     position: absolute;
-     width: 65%;
-     height: 65%;
-     background-image: url('asset/img/logo.png') !important;
-     background-repeat: no-repeat;
-     background-position: center;
-     background-size: contain;
-     opacity: .9;
-     border-radius: 10px;
- }
 
  /* === FLEX LAYOUT BASE === */
  .board.flex-layout {
@@ -1890,10 +1859,6 @@
          grid-template-columns: repeat(3, 1fr) !important;
      }
 
-     .board.flex-layout.layout-6-6-4 {
-         grid-template-columns: repeat(4, 1fr) !important;
-     }
-
      .board.flex-layout.layout-8x4 {
          grid-template-columns: repeat(6, 1fr) !important;
      }
@@ -1967,19 +1932,7 @@
      border: 1px solid #111 !important;
  }
 
- /* Logo belakang tetap */
- .back::after {
-     content: "";
-     position: absolute;
-     width: 65%;
-     height: 65%;
-     background-image: url('asset/img/logo.png') !important;
-     background-repeat: no-repeat;
-     background-position: center;
-     background-size: contain;
-     opacity: .9;
-     border-radius: 10px;
- }
+
 
  :root {
      --font-sans: "Satoshi", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -2046,41 +1999,210 @@
      z-index: 1;
  }
 
- .back::after {
-     z-index: 0;
- }
-
- /* ==== PAKSA tulis "Flipop" di belakang kartu ==== */
-
- /* 1) Matikan semua ::after lama yang pakai logo/ gambar */
- .back::after {
-     content: none !important;
-     /* hilangkan pseudo lama */
- }
-
  /* 2) Tampilkan teks via ::before (baru) */
  .back {
      position: relative !important;
  }
 
- .back::before {
-     content: "Flipop" !important;
+
+ /* (opsional) Kalau mau agak halus, turunkan opacity ke 0.2–0.3 */
+
+ /* === PAKSA DECK 16 (layout-6-6-4) PAKAI 8 KOLOM DI DESKTOP === */
+ @media (min-width: 1025px) {
+     .board.flex-layout.layout-6-6-4 {
+         grid-template-columns: repeat(8, 1fr) !important;
+     }
+ }
+
+ /* === 1️⃣ PAKSA DECK 32 (layout-8x4) JADI 8 KOLOM DI MOBILE === */
+ @media (max-width: 480px) {
+     .board.flex-layout.layout-8x4 {
+         grid-template-columns: repeat(8, 1fr) !important;
+         gap: 6px !important;
+     }
+
+     /* biar kartu tetap proporsional */
+     .board.flex-layout.layout-8x4 .card {
+         aspect-ratio: 3 / 4 !important;
+     }
+ }
+
+ /* === 2️⃣ RESPONSIVE FONT-SIZE UNTUK EMOJI (FACE) BERDASARKAN GRID === */
+ @media (max-width: 480px) {
+
+     /* default semua deck kecil (biar konsisten) */
+     .face {
+         font-size: clamp(18px, 2.8vw, 32px) !important;
+     }
+
+     /* khusus deck 32 (8 kolom) → emoji lebih kecil biar muat */
+     .board.flex-layout.layout-8x4 .face {
+         font-size: clamp(12px, 1.8vw, 22px) !important;
+         line-height: 1.05;
+     }
+
+     /* sedikit naikkan ukuran untuk deck 16 agar tidak terlalu kecil */
+     .board.flex-layout.layout-6-6-4 .face {
+         font-size: clamp(16px, 2.5vw, 28px) !important;
+     }
+
+     /* deck 8 tetap besar, biar jelas */
+     .board.flex-layout.layout-4x2 .face {
+         font-size: clamp(22px, 4vw, 38px) !important;
+     }
+ }
+
+ /* === SMOOTH FLIP FIX === */
+ .card,
+ .card-inner,
+ .face,
+ .back {
+     backface-visibility: hidden !important;
+     -webkit-backface-visibility: hidden !important;
+     transform-style: preserve-3d !important;
+     transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease !important;
+ }
+
+ .flipped .card-inner {
+     transform: rotateY(180deg) !important;
+     box-shadow: 0 16px 28px rgba(0, 0, 0, 0.25);
+ }
+
+ :root.dark body {
+     background: radial-gradient(1000px 500px at center top, #1e293b 0%, #0b1020 80%) fixed !important;
+ }
+
+ /* === FIX: Hilangkan bayangan gelap di atas board di mode terang === */
+ body {
+     background: var(--bg) !important;
+     /* Jika mau tetap sedikit gradient halus: */
+     /* background: radial-gradient(900px 500px at center top, #f9fafb 0%, var(--bg) 70%) fixed !important; */
+ }
+
+ /* === FIX GARIS GELAP DI ATAS KARTU === */
+ .card-inner {
+     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08) !important;
+     /* shadow lembut ke bawah */
+ }
+
+ /* hilangkan border hitam pada kedua sisi kartu */
+ .face,
+ .back {
+     border: none !important;
+     background: #fff !important;
+     color: #111827 !important;
+ }
+
+
+ /* mode gelap pun tetap bersih */
+ :root.dark .card-inner {
+     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5) !important;
+ }
+
+ :root.dark .face,
+ :root.dark .back {
+     border: none !important;
+     background: #fff !important;
+     color: #111827 !important;
+ }
+
+ /* === TEKS DI BELAKANG EMOJI === */
+ .face::after {
+     content: "Flipop";
+     /* ubah teks di sini sesuai keinginanmu */
+     position: absolute;
+     inset: 0;
+     display: grid;
+     place-items: center;
+     font-weight: 900;
+     text-transform: uppercase;
+     letter-spacing: 2px;
+     color: rgba(0, 0, 0, 0.05);
+     /* sangat halus */
+     font-size: clamp(16px, 5vw, 42px);
+     /* responsif */
+     z-index: 0;
+     /* teks di belakang emoji */
+     pointer-events: none;
+ }
+
+ /* === HILANGKAN TEKS "FLIPOP" DI DEPAN (FACE) === */
+ .face::after {
+     content: none !important;
+     /* matikan teks di sisi emoji */
+ }
+
+ /* === PAKSA HAPUS SEMUA ::before DAN ::after LAMA === */
+
+ /* === TEKS "FLIPOP" BARU DI BELAKANG KARTU === */
+ .back {
+     position: relative !important;
+     background: #ffffff !important;
+     color: #111827 !important;
+ }
+
+ /* Gunakan ::after untuk teks */
+ .back::after {
+     content: "FLIPOP" !important;
+     position: absolute !important;
+     top: 0 !important;
+     left: 0 !important;
+     right: 0 !important;
+     bottom: 0 !important;
+
+     display: flex !important;
+     align-items: center !important;
+     justify-content: center !important;
+
+     /* Styling teks */
+     font-family: inherit !important;
+     font-weight: 900 !important;
+     font-size: clamp(20px, 6vw, 50px) !important;
+     letter-spacing: 3px !important;
+     text-transform: uppercase !important;
+     color: #111827 !important;
+     opacity: 0.15 !important;
+
+     pointer-events: none !important;
+     user-select: none !important;
+     z-index: 10 !important;
+ }
+
+ /* Mode gelap */
+ :root.dark .back::after {
+     color: #111827 !important;
+     opacity: 0.2 !important;
+ }
+
+ /* Pastikan face (sisi emoji) TIDAK ada teks */
+ .face::before,
+ .face::after {
+     content: none !important;
+ }
+
+ /* Pastikan sisi belakang bisa jadi posisi acuan */
+ .back {
+     position: relative !important;
+ }
+
+ /* Teks “Flipop” tepat di tengah sisi belakang */
+ .back::after {
+     content: "FLIPOP" !important;
      position: absolute !important;
      inset: 0 !important;
-     display: grid !important;
-     place-items: center !important;
+     display: flex !important;
+     align-items: center !important;
+     justify-content: center !important;
 
-     /* gaya teks */
      font-weight: 900 !important;
      letter-spacing: 2px !important;
      text-transform: uppercase !important;
-     font-size: clamp(18px, 5vw, 42px) !important;
+     font-size: clamp(20px, 6vw, 50px) !important;
      color: #111827 !important;
-     opacity: 0.9 !important;
-     /* bikin terlihat jelas dulu */
-     pointer-events: none !important;
-     z-index: 2 !important;
-     border-radius: inherit !important;
- }
+     opacity: 0.15 !important;
 
- /* (opsional) Kalau mau agak halus, turunkan opacity ke 0.2–0.3 */
+     pointer-events: none !important;
+     /* supaya klik tetap ke kartu */
+     user-select: none !important;
+     z-index: 1 !important;
+ }

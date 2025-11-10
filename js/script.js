@@ -414,40 +414,67 @@ function flipAll(open) {
 
 // ====== Auto scale Board agar tidak overflow 100vh ======
 function fitBoardToViewport() {
-  // Ukur tinggi NYATA header/footer (bukan asumsi var --header-h) supaya tidak muncul scroll di desktop
   const header = document.querySelector("header");
   const footer = document.querySelector("footer");
-
   const headerH = header ? header.offsetHeight : 64;
   const footerH = footer ? footer.offsetHeight : 36;
+  const padding = 16;
 
-  // Ruang yang benar-benar tersedia
-  const verticalPadding = 16; // buffer kecil
-  const availH = window.innerHeight - headerH - footerH - verticalPadding;
+  const availH = Math.max(0, window.innerHeight - headerH - footerH - padding);
+  const availW = boardWrapEl.clientWidth || window.innerWidth;
 
-  // Sementara reset transform untuk dapat ukuran asli
-  const prevTransform = boardEl.style.transform;
+  // Reset agar bisa ukur ukuran natural
   boardEl.style.transform = "scale(1)";
-
-  // Pastikan kolom sudah sesuai lebar layar sebelum hitung skala
-  setGridCols();
-
-  // Hitung ukuran alami board
-  const rect = boardEl.getBoundingClientRect();
-
-  // Perhitungkan lebar container juga supaya tidak “geser kanan”
-  const wrapW = boardWrapEl.clientWidth || window.innerWidth;
-  const availW = wrapW - 12; // buffer
-
-  const scaleH = rect.height > 0 ? Math.min(1, availH / rect.height) : 1;
-  const scaleW = rect.width > 0 ? Math.min(1, availW / rect.width) : 1;
-  const scale = Math.max(0.5, Math.min(scaleH, scaleW)); // jangan terlalu kecil
-
-  boardEl.style.transform = `scale(${scale})`;
+  boardEl.style.margin = "0";
   boardEl.style.transformOrigin = "top center";
 
-  // Jika sebelumnya ada transform lain, abaikan saja—kita ganti penuh
-  void prevTransform; // no-op supaya linter senang
+  // Pastikan grid sudah sesuai jumlah kartu
+  setGridCols();
+
+  const rect = boardEl.getBoundingClientRect();
+  const naturalH = rect.height;
+  const naturalW = rect.width;
+  if (!naturalH || !naturalW) return;
+
+  const scaleH = Math.min(1, availH / naturalH);
+  const scaleW = Math.min(1, (availW - 16) / naturalW);
+  const scale = Math.max(0.5, Math.min(scaleH, scaleW));
+
+  // Terapkan skala
+  boardEl.style.transform = `scale(${scale})`;
+  boardEl.style.willChange = "transform";
+
+  // === Deteksi jumlah kartu untuk kompensasi dinamis ===
+  const cardCount = boardEl.querySelectorAll(".card").length;
+  let offsetTop = 0;
+  let wrapperHeight = naturalH * scale;
+
+  // 🔹 Kasus deck 16 (aman) → tetap auto center
+  if (cardCount === 16) {
+    offsetTop = (availH - wrapperHeight) / 2;
+  }
+
+  // 🔹 Kasus deck 8 → terlalu pendek → paksa di tengah viewport
+  else if (cardCount === 8) {
+    offsetTop = (availH - wrapperHeight) / 2.5; // agak lebih rendah
+    wrapperHeight = naturalH * scale + 60;
+  }
+
+  // 🔹 Kasus deck 32 → tinggi banget, tapi bagian bawah sering kosong → kurangi tinggi wrapper
+  else if (cardCount === 32) {
+    offsetTop = Math.max(8, (availH - wrapperHeight) / 3);
+    wrapperHeight = Math.min(availH, naturalH * scale + 40);
+  }
+
+  // 🔹 Default (deck lain)
+  else {
+    offsetTop = Math.max(8, (availH - wrapperHeight) / 2.2);
+  }
+
+  // Terapkan hasil kompensasi
+  boardEl.style.marginTop = `${Math.max(offsetTop, 0)}px`;
+  boardWrapEl.style.height = `${Math.min(availH, wrapperHeight + 40)}px`;
+  boardWrapEl.style.overflow = "hidden";
 }
 
 window.addEventListener("resize", () => {
