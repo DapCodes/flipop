@@ -2,6 +2,12 @@
 session_start();
 
 /**
+ * WARNING (Serverless note):
+ * Session di serverless Vercel tidak persisten. Untuk demo/latihan oke.
+ * Untuk persist global gunakan localStorage (client) atau storage eksternal (KV/DB).
+ */
+
+/**
  * Struktur session default:
  * $_SESSION['history'] = [ ... up to 60 ... ]
  * $_SESSION['leaderboard'] = [
@@ -33,7 +39,6 @@ function sort_leaderboard_solo(&$arr) {
     if ($a['moves'] !== $b['moves']) return $a['moves'] <=> $b['moves'];
     return strcmp($a['date'], $b['date']);
   });
-  // optional: batasi top 50
   if (count($arr) > 50) $arr = array_slice($arr, 0, 50);
 }
 
@@ -51,7 +56,7 @@ function sort_leaderboard_duel(&$arr) {
   if (count($arr) > 50) $arr = array_slice($arr, 0, 50);
 }
 
-// Router sederhana untuk API
+// ===== Router sederhana untuk API =====
 if (isset($_GET['action'])) {
   header('Content-Type: application/json; charset=utf-8');
   $action = $_GET['action'];
@@ -106,7 +111,8 @@ if (isset($_GET['action'])) {
         'date' => $date,
       ];
       sort_leaderboard_solo($_SESSION['leaderboard']['solo'][$difficulty]);
-    } else if ($mode === 'duel') { // duel
+
+    } else if ($mode === 'duel') {
       // player1, player2, score1, score2
       $p1 = $data['player1'] ?? 'P1';
       $p2 = $data['player2'] ?? 'P2';
@@ -144,14 +150,15 @@ if (isset($_GET['action'])) {
         'date' => $date,
       ];
       sort_leaderboard_duel($_SESSION['leaderboard']['duel'][$difficulty]);
+
     } else if ($mode === 'timetrial') {
       $entry['player'] = $data['player'] ?? 'Pemain';
       $entry['pairs'] = intval($data['pairs'] ?? 0);
-      $entry['score'] = intval($data['score'] ?? 0); // opsional: gunakan formula sama seperti solo
+      $entry['score'] = intval($data['score'] ?? 0);
       $entry['time_limit'] = intval($data['time_limit'] ?? 0);
       $entry['result'] = $data['result'] ?? 'unknown';
       $_SESSION['history'][] = $entry;
-      // (Saat ini tidak dimasukkan leaderboard agar tab tetap 2 mode: Solo & Duel)
+      // (tidak dimasukkan leaderboard agar tab tetap Solo/Duel)
     }
 
     clamp_history();
@@ -164,6 +171,9 @@ if (isset($_GET['action'])) {
   echo json_encode(['ok'=>false, 'error'=>'Not found']);
   exit;
 }
+
+// ===== HTML (root page) =====
+header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -171,8 +181,9 @@ if (isset($_GET['action'])) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Flipop — Memory Card Flip</title>
-  <!-- <link rel="stylesheet" href="asset/css/style.css" /> -->
-   <link rel="shortcut icon" href="asset/img/logo-small.svg" type="image/x-icon">
+
+  <!-- PENTING: path absolut untuk aset -->
+  <link rel="shortcut icon" href="../asset/img/logo-small.svg" type="image/x-icon">
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -180,18 +191,15 @@ if (isset($_GET['action'])) {
   <div class="wrap">
     <header>
       <div class="brand">
-        <!-- <div class="brand-badge">F</div> -->
-        <img src="asset/img/logo-small.svg" alt="" srcset="" class="logo">
+        <img src="../asset/img/logo-small.svg" alt="" class="logo">
         <div>Flipop</div>
       </div>
       <div class="stats">
         <div id="stats">
-          <div class="hud-players" id="hudPlayers">
-            <!-- Dinamis: avatar inisial + nama + skor + highlight turn -->
-          </div>
+          <div class="hud-players" id="hudPlayers"></div>
           <div class="stat">Langkah: <span id="moves">0</span></div>
           <div class="stat">Waktu: <span id="time">00:00</span></div>
-        <button class="btn small ghost" id="btnRestart" title="Mulai ulang">↻ Mulai Ulang</button>
+          <button class="btn small ghost" id="btnRestart" title="Mulai ulang">↻ Mulai Ulang</button>
         </div>
         <button class="btn small ghost" id="btnHistory" title="Riwayat">🕘 Riwayat</button>
         <button class="btn small ghost" id="btnLeaderboard" title="Papan Peringkat">🏆 Peringkat</button>
@@ -201,11 +209,10 @@ if (isset($_GET['action'])) {
 
     <main>
       <section class="welcome" id="welcome">
-        <h1>Selamat Datang di <span class="accent"> Flipop</span></h1> 
+        <h1>Selamat Datang di <span class="accent"> Flipop</span></h1>
         <p>Balik dan cocokkan pasangan kartu secepat mungkin.</p>
         <p><small>Latihan: array shuffle, game loop, animasi CSS/JS.</small></p>
 
-        <!-- Kartu pilihan mode -->
         <div class="mode-grid" id="modeGrid">
           <div class="mode-card" data-mode="solo" tabindex="0">
             <div class="mode-emoji">🧠</div>
@@ -247,7 +254,7 @@ if (isset($_GET['action'])) {
     <footer>© 2025 Flipop – dibuat untuk latihan logika & animasi</footer>
   </div>
 
-  <!-- Overlay: Splash Sapaan -->
+  <!-- Overlays & Modals -->
   <div class="overlay" id="overlaySplash" role="dialog" aria-modal="true">
     <div class="splash-card">
       <h2 class="splash-title">Selamat datang di <span class="accent">Flipop</span> 👋</h2>
@@ -256,7 +263,6 @@ if (isset($_GET['action'])) {
     </div>
   </div>
 
-  <!-- Overlay: Form Nama Awal -->
   <div class="overlay" id="overlayNameFirst" role="dialog" aria-modal="true" aria-labelledby="firstNameTitle">
     <div class="modal" style="max-width:520px">
       <h3 id="firstNameTitle" class="modal-title">Masukkan Nama Anda</h3>
@@ -271,7 +277,6 @@ if (isset($_GET['action'])) {
     </div>
   </div>
 
-  <!-- Overlay: Salam “Selamat datang, {nama}” -->
   <div class="overlay" id="overlayHello">
     <div class="hello-card">
       <div class="hello-text" id="helloText">Selamat datang!</div>
@@ -279,7 +284,6 @@ if (isset($_GET['action'])) {
     </div>
   </div>
 
-  <!-- Modal: Pilih Kesulitan -->
   <div class="modal-backdrop" id="modalDiff" role="dialog" aria-modal="true" aria-labelledby="diffTitle">
     <div class="modal">
       <h3 id="diffTitle" class="modal-title">Pilih Kesulitan</h3>
@@ -303,7 +307,6 @@ if (isset($_GET['action'])) {
         </div>
       </div>
 
-      <!-- Khusus Time Trial: pilih tingkat kesulitan waktu -->
       <div class="field-row" id="timeDiffRow" style="display:none; margin-bottom:12px">
         <label style="font-weight:700; display:block; margin-bottom:6px">Kesulitan Waktu</label>
         <div id="timeDiffBtns" style="display:flex; gap:8px; flex-wrap:wrap"></div>
@@ -317,7 +320,6 @@ if (isset($_GET['action'])) {
     </div>
   </div>
 
-  <!-- Modal: Input Nama (sebelum main / duel) -->
   <div class="modal-backdrop" id="modalName" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
     <div class="modal">
       <h3 id="nameTitle" class="modal-title">Masukkan Nama</h3>
@@ -329,7 +331,6 @@ if (isset($_GET['action'])) {
     </div>
   </div>
 
-  <!-- Modal: Riwayat -->
   <div class="modal-backdrop" id="modalHistory" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
     <div class="modal large">
       <h3 id="historyTitle" class="modal-title">Riwayat Terakhir</h3>
@@ -342,7 +343,6 @@ if (isset($_GET['action'])) {
     </div>
   </div>
 
-  <!-- Modal: Leaderboard -->
   <div class="modal-backdrop" id="modalLb" role="dialog" aria-modal="true" aria-labelledby="lbTitle">
     <div class="modal large">
       <h3 id="lbTitle" class="modal-title">Papan Peringkat</h3>
@@ -366,6 +366,13 @@ if (isset($_GET['action'])) {
 
   <div class="confetti" id="confetti" aria-hidden="true"></div>
 
+  <!-- Konfigurasi endpoint API: taruh sebelum script.js -->
   <script src="../js/script.js"></script>
+  <script>
+    // Karena semua route (kecuali aset) diarahkan ke file ini:
+    const API_URL = "/";            // fetch(`${API_URL}?action=...`)
+    // Jika kamu lebih suka memanggil langsung file di folder api, gunakan ini:
+    // const API_URL = "/api/card-system.php";
+  </script>
 </body>
 </html>
