@@ -74,7 +74,6 @@ const prestartEl = document.getElementById("prestart");
 const btnPrestart = document.getElementById("btnPrestart");
 const countdownEl = document.getElementById("countdown");
 const hudPlayersEl = document.getElementById("hudPlayers");
-const confettiEl = document.getElementById("confetti");
 
 const modalName = document.getElementById("modalName");
 const nameFields = document.getElementById("nameFields");
@@ -103,7 +102,6 @@ document.getElementById("btnCara").addEventListener("click", () => {
   );
 });
 document.getElementById("btnMulai").addEventListener("click", () => {
-  // highlight kartu mode (sudah terlihat). Jika user belum pilih, default ke Solo
   if (!state.mode) state.mode = "solo";
   openNameModal();
 });
@@ -155,7 +153,7 @@ const state = {
     p1: { name: "", score: 0 },
     p2: { name: "", score: 0 },
     turnIndex: 0,
-  }, // p2 optional in solo
+  },
   difficulty: { key: "mudah", pairs: 4 },
   deck: [],
   firstPick: null,
@@ -212,7 +210,6 @@ function createCardElement(cardData, idx) {
   return root;
 }
 function renderBoard() {
-  // remove old cards
   boardEl.querySelectorAll(".card").forEach((c) => c.remove());
   state.deck.forEach((cardData, idx) => {
     const card = createCardElement(cardData, idx);
@@ -316,11 +313,10 @@ function checkPair() {
     state.firstPick.classList.add("matched");
     state.secondPick.classList.add("matched");
     state.matchedCount++;
-    // Tambah skor pemain saat ini jika duel
     if (state.mode === "duel") {
       if (state.players.turnIndex === 0) state.players.p1.score++;
       else state.players.p2.score++;
-      // turn tetap pada pemain yang sama
+      // turn tetap pada pemain yang sama ketika match
     }
     resetSelection();
     updateHudPlayers();
@@ -336,7 +332,6 @@ function checkPair() {
       state.firstPick.classList.remove("flipped");
       state.secondPick.classList.remove("flipped");
       resetSelection();
-      // Pindah giliran jika duel
       if (state.mode === "duel") {
         state.players.turnIndex = state.players.turnIndex === 0 ? 1 : 0;
         updateHudPlayers();
@@ -373,7 +368,7 @@ function stopTimer(reset = false) {
 function initials(name) {
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
+  return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
 }
 function updateHudPlayers() {
   hudPlayersEl.innerHTML = "";
@@ -408,7 +403,18 @@ function updateHudPlayers() {
 }
 
 // ====== Win & Confetti ======
+function ensureConfettiContainer() {
+  let confetti = document.getElementById("confetti");
+  if (!confetti) {
+    confetti = document.createElement("div");
+    confetti.id = "confetti";
+    confetti.className = "confetti";
+    document.body.appendChild(confetti);
+  }
+  return confetti;
+}
 function burstConfetti() {
+  const confetti = ensureConfettiContainer();
   const colors = [
     "#34d399",
     "#60a5fa",
@@ -421,7 +427,6 @@ function burstConfetti() {
   ];
   const count = 140;
   const w = window.innerWidth;
-  const confetti = document.getElementById("confetti");
   confetti.innerHTML = "";
   for (let i = 0; i < count; i++) {
     const piece = document.createElement("i");
@@ -436,7 +441,6 @@ function burstConfetti() {
   setTimeout(() => (confetti.innerHTML = ""), 7000);
 }
 function showWin() {
-  // Build and show a small inline win panel (reuse original style)
   const winEl =
     document.querySelector(".win") ||
     (() => {
@@ -444,13 +448,13 @@ function showWin() {
       wrap.id = "win";
       const panel = el("div", "panel");
       panel.innerHTML = `
-      <div class="big">Kamu Menang! 🎉</div>
-      <p class="sub">Selesai dalam <b><span id="finalTime">00:00</span></b> dengan <b><span id="finalMoves">0</span></b> langkah.</p>
-      <div style="display:flex; gap:10px; justify-content:center;">
-        <button class="btn primary" id="btnMainLagi">Main Lagi</button>
-        <button class="btn ghost" id="btnGanti"><span>Ganti Kesulitan</span></button>
-      </div>
-    `;
+        <div class="big">Kamu Menang! 🎉</div>
+        <p class="sub">Selesai dalam <b><span id="finalTime">00:00</span></b> dengan <b><span id="finalMoves">0</span></b> langkah.</p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+          <button class="btn primary" id="btnMainLagi">Main Lagi</button>
+          <button class="btn ghost" id="btnGanti"><span>Ganti Kesulitan</span></button>
+        </div>
+      `;
       wrap.appendChild(panel);
       document.body.appendChild(wrap);
       return wrap;
@@ -459,8 +463,8 @@ function showWin() {
   document.getElementById("finalMoves").textContent = state.moves;
   document.getElementById("finalTime").textContent = fmtMMSS(state.timer.sec);
   winEl.style.display = "grid";
-  burstConfetti();
 
+  // PASANG LISTENER DULU (kalau ada error visual, tombol tetap berfungsi)
   winEl.querySelector("#btnMainLagi").onclick = () => {
     closeWin();
     startGame(state.difficulty.pairs);
@@ -470,7 +474,8 @@ function showWin() {
     openDiff();
   };
 
-  // Simpan hasil ke server
+  // Efek & simpan hasil
+  burstConfetti();
   saveResult();
 }
 function closeWin() {
@@ -562,7 +567,6 @@ async function fetchData() {
   }
 }
 async function saveResult() {
-  // Build payload
   const payload = {
     mode: state.mode,
     difficulty: state.difficulty.key,
@@ -572,7 +576,6 @@ async function saveResult() {
   };
 
   if (state.mode === "solo") {
-    // Score formula: round(1000 * diffFactor * (pairs / max(1,moves)) * ((pairs*10)/max(5,time_sec)))
     const diffFactor = DIFF_FACTOR[state.difficulty.key] || 1;
     const eff = state.difficulty.pairs / Math.max(1, state.moves);
     const spd = (state.difficulty.pairs * 10) / Math.max(5, state.timer.sec);
@@ -593,10 +596,9 @@ async function saveResult() {
       body: JSON.stringify(payload),
     });
     const json = await res.json();
-    if (json.ok) {
-      // Refresh caches for history/leaderboard
-      await fetchData();
-    }
+    // Optional debug:
+    // console.log("saveResult:", json);
+    if (json.ok) await fetchData();
   } catch (e) {
     console.error("Save result failed", e);
   }

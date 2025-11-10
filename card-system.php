@@ -283,6 +283,7 @@ if (isset($_GET['action'])) {
       </div>
     </div>
   </div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
 
   <script src="js/script.js"></script>
 </body>
