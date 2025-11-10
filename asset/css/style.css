@@ -589,3 +589,23 @@ footer {
         opacity: 1;
     }
 }
+
+.select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 2px solid var(--ring);
+    background: var(--card-front);
+    color: var(--text);
+}
+
+.lb-tab.active,
+.lb-diff-btn.active,
+#timeDiffBtns .btn.active {
+    outline: 2px solid var(--brand-grad2);
+}
+
+.countdown.preview-clear {
+    backdrop-filter: none !important;
+    background: transparent !important;
+}

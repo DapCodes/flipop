@@ -106,7 +106,7 @@ if (isset($_GET['action'])) {
         'date' => $date,
       ];
       sort_leaderboard_solo($_SESSION['leaderboard']['solo'][$difficulty]);
-    } else { // duel
+    } else if ($mode == 'duel') { // duel
       // player1, player2, score1, score2
       $p1 = $data['player1'] ?? 'P1';
       $p2 = $data['player2'] ?? 'P2';
@@ -144,6 +144,14 @@ if (isset($_GET['action'])) {
         'date' => $date,
       ];
       sort_leaderboard_duel($_SESSION['leaderboard']['duel'][$difficulty]);
+    } else if ($mode === 'timetrial') {
+      $entry['player'] = $data['player'] ?? 'Pemain';
+      $entry['pairs'] = intval($data['pairs'] ?? 0);
+      $entry['score'] = intval($data['score'] ?? 0); // opsional: gunakan formula sama seperti solo
+      $entry['time_limit'] = intval($data['time_limit'] ?? 0);
+      $entry['result'] = $data['result'] ?? 'unknown';
+      $_SESSION['history'][] = $entry;
+      // (Saat ini tidak dimasukkan leaderboard agar tab tetap 2 mode: Solo & Duel)
     }
 
     clamp_history();
@@ -203,6 +211,11 @@ if (isset($_GET['action'])) {
             <div class="mode-title">Duel</div>
             <div class="mode-sub">Bergiliran, rebut pasangan terbanyak.</div>
           </div>
+          <div class="mode-card" data-mode="timetrial" tabindex="0">
+            <div class="mode-emoji">⏱️</div>
+            <div class="mode-title">Time Trial</div>
+            <div class="mode-sub">Kejar waktu + cocokkan semua pasangan.</div>
+          </div>
         </div>
 
         <div class="welcome-actions">
@@ -230,6 +243,33 @@ if (isset($_GET['action'])) {
   <div class="modal-backdrop" id="modalDiff" role="dialog" aria-modal="true" aria-labelledby="diffTitle">
     <div class="modal">
       <h3 id="diffTitle" class="modal-title">Pilih Kesulitan</h3>
+
+      <div class="field-row" id="iconCategoryRow" style="margin-bottom:10px">
+        <label for="selectIconCat" style="font-weight:700; display:block; margin-bottom:6px">Kategori Ikon</label>
+        <select id="selectIconCat" class="select">
+          <option value="acak">Acak (campur)</option>
+          <option value="transportasi">Transportasi</option>
+          <option value="buah-sayur">Buah & Sayur</option>
+          <option value="benda">Benda</option>
+          <option value="hewan">Hewan</option>
+        </select>
+      </div>
+
+      <div class="field-row" id="previewChoiceRow" style="margin-bottom:10px">
+        <label style="font-weight:700; display:block; margin-bottom:6px">Tampilkan kartu 10 detik sebelum mulai?</label>
+        <div style="display:flex; gap:10px; align-items:center">
+          <input type="checkbox" id="chkPreview10" />
+          <label for="chkPreview10">Ya, tampilkan preview 10 detik</label>
+        </div>
+      </div>
+
+      <!-- Khusus Time Trial: pilih tingkat kesulitan waktu -->
+      <div class="field-row" id="timeDiffRow" style="display:none; margin-bottom:12px">
+        <label style="font-weight:700; display:block; margin-bottom:6px">Kesulitan Waktu</label>
+        <div id="timeDiffBtns" style="display:flex; gap:8px; flex-wrap:wrap"></div>
+        <div id="timeDiffHint" style="font-size:12px; opacity:.75; margin-top:6px"></div>
+      </div>
+
       <div class="choices" id="choices"></div>
       <div class="modal-actions">
         <button class="btn ghost" id="btnBatal">Batal</button>

@@ -27,40 +27,166 @@ const DIFFICULTIES = [
   { key: "sulit", pairs: 16, label: "Sulit (32 kartu / 16 pasang)" },
 ];
 const DIFF_FACTOR = { mudah: 1, sedang: 2, sulit: 3 };
-const ICONS = [
-  "🐶",
-  "🐱",
-  "🦊",
-  "🐻",
-  "🐼",
-  "🦁",
-  "🐮",
-  "🐸",
-  "🐵",
-  "🦄",
-  "🐷",
-  "🐯",
-  "🐔",
-  "🐙",
-  "🐳",
-  "🦋",
-  "🍎",
-  "🍌",
-  "🍇",
-  "🍉",
-  "🍓",
-  "🥑",
-  "🍩",
-  "🍪",
-  "⚽",
-  "🏀",
-  "🏈",
-  "🎾",
-  "🎮",
-  "🎲",
-  "🎧",
-  "🎹",
+
+// IKON: kategori
+const ICON_SETS = {
+  acak: [
+    "🐶",
+    "🐱",
+    "🦊",
+    "🐻",
+    "🐼",
+    "🦁",
+    "🐮",
+    "🐸",
+    "🐵",
+    "🦄",
+    "🐷",
+    "🐯",
+    "🐔",
+    "🐙",
+    "🐳",
+    "🦋",
+    "🍎",
+    "🍌",
+    "🍇",
+    "🍉",
+    "🍓",
+    "🥑",
+    "🍩",
+    "🍪",
+    "⚽",
+    "🏀",
+    "🏈",
+    "🎾",
+    "🎮",
+    "🎲",
+    "🎧",
+    "🎹",
+    "🚗",
+    "🚌",
+    "🚲",
+    "🚀",
+    "🚁",
+    "🚂",
+    "🛥️",
+    "✈️",
+    "🚜",
+    "🚕",
+    "🛵",
+    "🚒",
+    "🚑",
+    "🚛",
+    "🚤",
+    "🛩️",
+    "🪑",
+    "🛋️",
+    "🧸",
+    "🖊️",
+    "📚",
+    "💡",
+    "🧯",
+    "📦",
+    "🔧",
+    "🧰",
+    "🧵",
+    "🎒",
+    "🧪",
+    "🧂",
+    "🍳",
+    "🔨",
+  ],
+  transportasi: [
+    "🚗",
+    "🚌",
+    "🚲",
+    "🚀",
+    "🚁",
+    "🚂",
+    "🛥️",
+    "✈️",
+    "🚜",
+    "🚕",
+    "🛵",
+    "🚒",
+    "🚑",
+    "🚛",
+    "🚤",
+    "🛩️",
+  ],
+  "buah-sayur": [
+    "🍎",
+    "🍌",
+    "🍇",
+    "🍉",
+    "🍓",
+    "🥑",
+    "🍋",
+    "🍍",
+    "🥕",
+    "🌽",
+    "🍅",
+    "🥦",
+    "🥒",
+    "🍒",
+    "🍈",
+    "🍑",
+  ],
+  benda: [
+    "🪑",
+    "🛋️",
+    "🧸",
+    "🖊️",
+    "📚",
+    "💡",
+    "🧯",
+    "📦",
+    "🔧",
+    "🧰",
+    "🧵",
+    "🎒",
+    "🧪",
+    "🧂",
+    "🍳",
+    "🔨",
+  ],
+  hewan: [
+    "🐶",
+    "🐱",
+    "🦊",
+    "🐻",
+    "🐼",
+    "🦁",
+    "🐮",
+    "🐸",
+    "🐵",
+    "🦄",
+    "🐷",
+    "🐯",
+    "🐔",
+    "🐙",
+    "🐳",
+    "🦋",
+  ],
+};
+// fallback lama (kalau ada referensi lama ke ICONS)
+const ICONS = ICON_SETS.acak;
+
+// Time Trial
+const TIME_DIFFS = [
+  { key: "mudah", label: "Waktu Mudah" },
+  { key: "sedang", label: "Waktu Sedang" },
+  { key: "sulit", label: "Waktu Sulit" },
 ];
+
+// mapping limit waktu (detik) per jumlah kartu (8/16/32 = pairs 4/8/16)
+function getTimeLimit(pairs, timeKey) {
+  // default (8 kartu / 4 pasang)
+  let limits = { mudah: 120, sedang: 60, sulit: 30 };
+  if (pairs === 8) limits = { mudah: 180, sedang: 90, sulit: 45 };
+  if (pairs === 16) limits = { mudah: 420, sedang: 300, sulit: 180 };
+  return limits[timeKey] ?? limits.mudah;
+}
 
 // ====== Elements ======
 const boardEl = document.getElementById("board");
@@ -98,7 +224,7 @@ document.getElementById("btnTheme").addEventListener("click", toggleTheme);
 // Welcome actions
 document.getElementById("btnCara").addEventListener("click", () => {
   alert(
-    "Cocokkan 2 kartu yang sama.\n- Pilih mode (Solo/Duel) dan masukkan nama.\n- Pilih kesulitan.\n- Preview → 3..2..1 → Mulai!\n- Duel: jika cocok, tetap giliranmu; jika salah, pindah.\n- Selesai saat semua pasangan ditemukan."
+    "Cocokkan 2 kartu yang sama.\n- Pilih mode (Solo/Duel/Time Trial) dan masukkan nama.\n- Pilih kesulitan & kategori ikon.\n- (Opsional) Preview 10 detik → 3..2..1 → Mulai!\n- Duel: jika cocok, tetap giliranmu; jika salah, pindah.\n- Selesai saat semua pasangan ditemukan."
   );
 });
 document.getElementById("btnMulai").addEventListener("click", () => {
@@ -109,14 +235,17 @@ document.getElementById("btnMulai").addEventListener("click", () => {
 // Mode cards (klik untuk memilih mode)
 document.querySelectorAll(".mode-card").forEach((card) => {
   card.addEventListener("click", () => {
-    state.mode = card.dataset.mode; // 'solo' | 'duel'
+    state.mode = card.dataset.mode; // 'solo' | 'duel' | 'timetrial'
     openNameModal();
   });
 });
 
 // Diff modal
 document.getElementById("btnBatal").addEventListener("click", closeDiff);
-btnPrestart.addEventListener("click", startCountdown);
+btnPrestart.addEventListener("click", () => {
+  if (state.preview10s) startPreview10ThenCountdown();
+  else startCountdown();
+});
 
 // History / Leaderboard modal closers
 document
@@ -148,20 +277,24 @@ document.querySelectorAll(".lb-diff-btn").forEach((btn) => {
 
 // ====== State ======
 const state = {
-  mode: null, // 'solo' | 'duel'
+  mode: null, // 'solo' | 'duel' | 'timetrial'
   players: {
     p1: { name: "", score: 0 },
     p2: { name: "", score: 0 },
     turnIndex: 0,
   },
   difficulty: { key: "mudah", pairs: 4 },
+  timeTrial: { enabled: false, timeKey: "mudah", limitSec: 120 },
+  iconCategory: "acak",
+  preview10s: false,
+
   deck: [],
   firstPick: null,
   secondPick: null,
   matchedCount: 0,
   moves: 0,
-  timer: { running: false, sec: 0, int: null },
-  gamePhase: "idle", // idle | preview | countdown | playing | won
+  timer: { running: false, sec: 0, int: null, dir: "up" }, // dir: 'up' | 'down'
+  gamePhase: "idle", // idle | preview | countdown | playing | won | lost
   dataCache: { history: [], leaderboard: { solo: {}, duel: {} } },
 };
 
@@ -186,8 +319,10 @@ function setGridCols() {
   else if (total <= 16) boardEl.classList.add("cols-6");
   else boardEl.classList.add("cols-8");
 }
+
 function buildDeck() {
-  const pool = ICONS.slice(0);
+  const cat = state.iconCategory || "acak";
+  let pool = ICON_SETS[cat] ? ICON_SETS[cat].slice(0) : ICON_SETS.acak.slice(0);
   shuffle(pool);
   const selected = pool.slice(0, state.difficulty.pairs);
   const doubled = selected.flatMap((icon, i) => [
@@ -196,6 +331,7 @@ function buildDeck() {
   ]);
   state.deck = shuffle(doubled);
 }
+
 function createCardElement(cardData, idx) {
   const root = el("div", "card");
   root.dataset.id = cardData.id;
@@ -225,6 +361,29 @@ function flipAll(open) {
 // ====== Game Flow ======
 function openDiff() {
   modalDiff.style.display = "grid";
+  // Build ulang pilihan difficulty (idempotent)
+  choicesEl.innerHTML = "";
+  DIFFICULTIES.forEach((d) => {
+    const row = el("div", "choice");
+    const left = el("div", "", d.label);
+    const right = el("button", "btn small primary", "Pilih");
+    right.addEventListener("click", () => {
+      closeDiff();
+      setDifficulty(d.key);
+      if (state.mode === "timetrial") {
+        state.timeTrial.limitSec = getTimeLimit(
+          d.pairs,
+          state.timeTrial.timeKey
+        );
+      }
+      startGame(d.pairs);
+    });
+    row.append(left, right);
+    choicesEl.appendChild(row);
+  });
+
+  // siapkan UI tambahan (kategori ikon, preview, time trial)
+  setupTimeTrialUI();
 }
 function closeDiff() {
   modalDiff.style.display = "none";
@@ -240,9 +399,26 @@ function startGame(pairs) {
   movesEl.textContent = "0";
   stopTimer(true);
   state.gamePhase = "preview";
+
+  // set limit waktu bila timetrial
+  if (state.mode === "timetrial") {
+    state.timeTrial.enabled = true;
+    state.timeTrial.limitSec = getTimeLimit(pairs, state.timeTrial.timeKey);
+    state.timer.dir = "down";
+    state.timer.sec = state.timeTrial.limitSec;
+    timeEl.textContent = fmtMMSS(state.timer.sec);
+  } else {
+    state.timeTrial.enabled = false;
+    state.timer.dir = "up";
+    state.timer.sec = 0;
+    timeEl.textContent = fmtMMSS(0);
+  }
+
   buildDeck();
   renderBoard();
   setGridCols();
+
+  // fase awal: flip open (preview modal kita sendiri)
   flipAll(true);
   boardEl.classList.add("locked");
   prestartEl.style.display = "grid";
@@ -282,6 +458,37 @@ function startCountdown() {
   }, 800);
 }
 
+function startPreview10ThenCountdown() {
+  // Paksa semua terbuka 10 detik, lalu tutup & mulai countdown
+  state.gamePhase = "preview";
+  prestartEl.style.display = "none";
+  countdownEl.style.display = "grid";
+  countdownEl.textContent = "Lihat kartu (10s)";
+
+  // >>> Non-blur saat lihat kartu:
+  countdownEl.classList.add("preview-clear");
+
+  flipAll(true);
+  boardEl.classList.add("locked");
+  let left = 10;
+  const iv = setInterval(() => {
+    left--;
+    if (left > 0) {
+      countdownEl.textContent = `Lihat kartu (${left}s)`;
+    } else {
+      clearInterval(iv);
+      flipAll(false);
+      setTimeout(() => {
+        // Kembalikan gaya countdown normal sebelum hitung mundur 3..2..1
+        countdownEl.classList.remove("preview-clear");
+        countdownEl.style.display = "none";
+        // langsung ke countdown 3..2..1.. Mulai
+        startCountdown();
+      }, 400);
+    }
+  }, 1000);
+}
+
 function onFlip(cardEl) {
   if (state.gamePhase !== "playing") return;
   if (!state.timer.running) startTimer();
@@ -291,6 +498,7 @@ function onFlip(cardEl) {
   )
     return;
   if (boardEl.classList.contains("locked")) return;
+
   cardEl.classList.add("flipped");
   if (!state.firstPick) {
     state.firstPick = cardEl;
@@ -349,9 +557,21 @@ function resetSelection() {
 // ====== Timer ======
 function startTimer() {
   state.timer.running = true;
+  if (state.timer.int) clearInterval(state.timer.int);
   state.timer.int = setInterval(() => {
-    state.timer.sec++;
-    timeEl.textContent = fmtMMSS(state.timer.sec);
+    if (state.timer.dir === "up") {
+      state.timer.sec++;
+      timeEl.textContent = fmtMMSS(state.timer.sec);
+    } else {
+      state.timer.sec = Math.max(0, state.timer.sec - 1);
+      timeEl.textContent = fmtMMSS(state.timer.sec);
+      if (state.timer.sec === 0) {
+        // waktu habis
+        stopTimer(false);
+        state.gamePhase = "lost";
+        setTimeout(showLose, 350);
+      }
+    }
   }, 1000);
 }
 function stopTimer(reset = false) {
@@ -359,8 +579,12 @@ function stopTimer(reset = false) {
   state.timer.int = null;
   state.timer.running = false;
   if (reset) {
-    state.timer.sec = 0;
-    timeEl.textContent = "00:00";
+    if (state.timer.dir === "down" && state.timeTrial?.limitSec) {
+      state.timer.sec = state.timeTrial.limitSec;
+    } else {
+      state.timer.sec = 0;
+    }
+    timeEl.textContent = fmtMMSS(state.timer.sec);
   }
 }
 
@@ -372,7 +596,7 @@ function initials(name) {
 }
 function updateHudPlayers() {
   hudPlayersEl.innerHTML = "";
-  if (state.mode === "solo") {
+  if (state.mode === "solo" || state.mode === "timetrial") {
     const p = state.players.p1;
     const item = el("div", "hud-player active");
     const av = el("div", "avatar", initials(p.name || "P1"));
@@ -460,11 +684,17 @@ function showWin() {
       return wrap;
     })();
 
+  // waktu yang ditampilkan = waktu yang DIHABISKAN (elapsed)
+  const elapsed =
+    state.timer.dir === "up"
+      ? state.timer.sec
+      : state.timeTrial.limitSec - state.timer.sec;
+
   document.getElementById("finalMoves").textContent = state.moves;
-  document.getElementById("finalTime").textContent = fmtMMSS(state.timer.sec);
+  document.getElementById("finalTime").textContent = fmtMMSS(elapsed);
   winEl.style.display = "grid";
 
-  // PASANG LISTENER DULU (kalau ada error visual, tombol tetap berfungsi)
+  // PASANG LISTENER DULU
   winEl.querySelector("#btnMainLagi").onclick = () => {
     closeWin();
     startGame(state.difficulty.pairs);
@@ -476,6 +706,7 @@ function showWin() {
 
   // Efek & simpan hasil
   burstConfetti();
+  if (state.mode === "timetrial") state.timeTrial.result = "menang";
   saveResult();
 }
 function closeWin() {
@@ -483,6 +714,42 @@ function closeWin() {
   if (winEl) winEl.style.display = "none";
   const confetti = document.getElementById("confetti");
   if (confetti) confetti.innerHTML = "";
+}
+function showLose() {
+  const loseEl =
+    document.querySelector(".lose") ||
+    (() => {
+      const wrap = el("div", "win lose"); // pakai style win
+      wrap.id = "lose";
+      const panel = el("div", "panel");
+      panel.innerHTML = `
+        <div class="big">Waktu Habis ⏱️</div>
+        <p class="sub">Coba lagi ya. Kamu menemukan <b>${state.matchedCount}</b> dari <b>${state.difficulty.pairs}</b> pasangan.</p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+          <button class="btn primary" id="btnCobaLagi">Coba Lagi</button>
+          <button class="btn ghost" id="btnGantiDiff">Ganti Pilihan</button>
+        </div>
+      `;
+      wrap.appendChild(panel);
+      document.body.appendChild(wrap);
+      return wrap;
+    })();
+
+  loseEl.style.display = "grid";
+  loseEl.querySelector("#btnCobaLagi").onclick = () => {
+    closeLose();
+    startGame(state.difficulty.pairs);
+  };
+  loseEl.querySelector("#btnGantiDiff").onclick = () => {
+    closeLose();
+    openDiff();
+  };
+  state.timeTrial.result = "waktu_habis";
+  saveResult();
+}
+function closeLose() {
+  const elx = document.getElementById("lose");
+  if (elx) elx.style.display = "none";
 }
 
 // ====== Name Modal & Difficulty ======
@@ -515,6 +782,7 @@ btnNamaBatal.addEventListener(
   "click",
   () => (modalName.style.display = "none")
 );
+
 btnNamaOK.addEventListener("click", () => {
   if (state.mode === "duel") {
     const n1 = document.getElementById("nameP1").value.trim() || "P1";
@@ -522,15 +790,16 @@ btnNamaOK.addEventListener("click", () => {
     state.players.p1.name = n1;
     state.players.p2.name = n2;
   } else {
+    // solo & timetrial
     const n = document.getElementById("nameSolo").value.trim() || "Pemain";
     state.players.p1.name = n;
     state.players.p2.name = ""; // not used
   }
   modalName.style.display = "none";
-  openDiff();
+  openDiff(); // akan memanggil setupTimeTrialUI() juga
 });
 
-// Populate difficulty choices
+// Build pilihan kesulitan (juga dipanggil ulang di openDiff)
 DIFFICULTIES.forEach((d) => {
   const row = el("div", "choice");
   const left = el("div", "", d.label);
@@ -538,6 +807,9 @@ DIFFICULTIES.forEach((d) => {
   right.addEventListener("click", () => {
     closeDiff();
     setDifficulty(d.key);
+    if (state.mode === "timetrial") {
+      state.timeTrial.limitSec = getTimeLimit(d.pairs, state.timeTrial.timeKey);
+    }
     startGame(d.pairs);
   });
   row.append(left, right);
@@ -547,6 +819,58 @@ function setDifficulty(key) {
   const found = DIFFICULTIES.find((x) => x.key === key) || DIFFICULTIES[0];
   state.difficulty.key = found.key;
   state.difficulty.pairs = found.pairs;
+}
+
+function setupTimeTrialUI() {
+  const timeRow = document.getElementById("timeDiffRow");
+  const timeBtns = document.getElementById("timeDiffBtns");
+  const timeHint = document.getElementById("timeDiffHint");
+  const iconSel = document.getElementById("selectIconCat");
+  const chkPrev = document.getElementById("chkPreview10");
+
+  if (iconSel) {
+    iconSel.value = state.iconCategory || "acak";
+    iconSel.onchange = () => (state.iconCategory = iconSel.value);
+  }
+  if (chkPrev) {
+    chkPrev.checked = !!state.preview10s;
+    chkPrev.onchange = () => (state.preview10s = chkPrev.checked);
+  }
+
+  if (state.mode === "timetrial" && timeRow && timeBtns && timeHint) {
+    state.timeTrial.enabled = true;
+    timeRow.style.display = "block";
+    timeBtns.innerHTML = "";
+    TIME_DIFFS.forEach((t) => {
+      const b = el("button", "btn small ghost", t.label);
+      if (t.key === state.timeTrial.timeKey) b.classList.add("active");
+      b.addEventListener("click", () => {
+        timeBtns
+          .querySelectorAll("button")
+          .forEach((x) => x.classList.remove("active"));
+        b.classList.add("active");
+        state.timeTrial.timeKey = t.key;
+        updateTimeTrialHint(timeHint);
+      });
+      timeBtns.appendChild(b);
+    });
+    updateTimeTrialHint(timeHint);
+  } else if (timeRow) {
+    state.timeTrial.enabled = false;
+    timeRow.style.display = "none";
+  }
+}
+
+function updateTimeTrialHint(hintEl) {
+  if (!hintEl) return;
+  const pairs = state.difficulty?.pairs ?? 4;
+  const tk = state.timeTrial.timeKey ?? "mudah";
+  const lim = getTimeLimit(pairs, tk);
+  const mm = Math.floor(lim / 60);
+  const ss = (lim % 60).toString().padStart(2, "0");
+  hintEl.textContent = `Waktu tersedia: ${mm}:${ss} untuk ${
+    pairs * 2
+  } kartu (${tk}).`;
 }
 
 // ====== Keyboard shortcut ======
@@ -567,21 +891,32 @@ async function fetchData() {
   }
 }
 async function saveResult() {
+  // waktu tercatat:
+  const elapsed =
+    state.timer.dir === "up"
+      ? state.timer.sec
+      : state.timeTrial.limitSec - state.timer.sec;
+
   const payload = {
     mode: state.mode,
     difficulty: state.difficulty.key,
     moves: state.moves,
-    time_sec: state.timer.sec,
+    time_sec: elapsed,
     pairs: state.difficulty.pairs,
   };
 
-  if (state.mode === "solo") {
+  if (state.mode === "solo" || state.mode === "timetrial") {
     const diffFactor = DIFF_FACTOR[state.difficulty.key] || 1;
     const eff = state.difficulty.pairs / Math.max(1, state.moves);
-    const spd = (state.difficulty.pairs * 10) / Math.max(5, state.timer.sec);
+    const spd = (state.difficulty.pairs * 10) / Math.max(5, elapsed);
     const score = Math.round(1000 * diffFactor * eff * spd);
     payload.player = state.players.p1.name || "Pemain";
     payload.score = score;
+
+    if (state.mode === "timetrial") {
+      payload.time_limit = state.timeTrial.limitSec;
+      payload.result = state.timeTrial.result || "unknown";
+    }
   } else {
     payload.player1 = state.players.p1.name || "P1";
     payload.player2 = state.players.p2.name || "P2";
@@ -596,8 +931,6 @@ async function saveResult() {
       body: JSON.stringify(payload),
     });
     const json = await res.json();
-    // Optional debug:
-    // console.log("saveResult:", json);
     if (json.ok) await fetchData();
   } catch (e) {
     console.error("Save result failed", e);
@@ -634,10 +967,16 @@ function renderHistoryTable() {
       if (mode === "solo") {
         playerCol = r.player || "Pemain";
         scoreCol = r.score ?? 0;
-      } else {
+      } else if (mode === "duel") {
         playerCol = `${r.player1 || "P1"} vs ${r.player2 || "P2"}`;
         const winner = r.winner || "Seri";
         scoreCol = `${r.score1 ?? 0} - ${r.score2 ?? 0} (${winner})`;
+      } else if (mode === "timetrial") {
+        playerCol = r.player || "Pemain";
+        const lim = r.time_limit ? ` / limit ${fmtMMSS(r.time_limit)}` : "";
+        scoreCol = `Time Trial: ${r.result || "-"}${lim} • Skor ${
+          r.score ?? 0
+        }`;
       }
       return `<tr>
       <td>${when}</td>
@@ -727,14 +1066,6 @@ function renderLeaderboardTable() {
       .join("");
     tblLb.innerHTML = th + rows;
   }
-}
-
-// ====== Start helpers ======
-function openDiff() {
-  modalDiff.style.display = "grid";
-}
-function closeDiff() {
-  modalDiff.style.display = "none";
 }
 
 // Init HUD (welcome screen)
