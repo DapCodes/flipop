@@ -1,0 +1,2086 @@
+ :root {
+     --bg: #ffffff;
+     --bg-accent: #ffffff;
+     --text: #111827;
+     --muted: #6b7280;
+     --surface: #f3f4f6;
+     --card-front: #ffffff;
+     --card-back1: #60a5fa;
+     --card-back2: #a78bfa;
+     --brand-grad1: #2563eb;
+     --brand-grad2: #7c3aed;
+     --success: #34d399;
+     --shadow: rgba(17, 24, 39, .2);
+     --shadow-strong: rgba(17, 24, 39, .28);
+     --ring: #e5e7eb;
+     --header-h: 64px;
+     --footer-h: 36px;
+ }
+
+ :root.dark {
+     --bg: #0b1020;
+     --bg-accent: #0b1020;
+     --text: #e5e7eb;
+     --muted: #9ca3af;
+     --surface: #0f162e;
+     --card-front: #0f162e;
+     --card-back1: #475569;
+     --card-back2: #6366f1;
+     --brand-grad1: #4f46e5;
+     --brand-grad2: #a855f7;
+     --success: #34d399;
+     --shadow: rgba(0, 0, 0, .35);
+     --shadow-strong: rgba(0, 0, 0, .55);
+     --ring: #26304a;
+ }
+
+ /* =========================
+   GLOBALS & BASE LAYOUT
+========================= */
+ * {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+ }
+
+ html {
+     height: 100%;
+     overflow-x: hidden;
+ }
+
+ body {
+     min-height: 100vh;
+     margin: 0;
+     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+     color: var(--text);
+     background: radial-gradient(1200px 600px at 70% -10%, #dbeafe 0%, var(--bg) 40%) fixed;
+     overflow-x: hidden;
+     overflow-y: auto;
+     /* Allow vertical scroll */
+ }
+
+ .wrap {
+     min-height: 100vh;
+     display: flex;
+     flex-direction: column;
+ }
+
+ /* =========================
+   HEADER / NAVBAR - RESPONSIVE
+========================= */
+ header {
+     min-height: var(--header-h);
+     padding: 12px 16px;
+     display: flex;
+     gap: 12px;
+     align-items: center;
+     justify-content: space-between;
+     backdrop-filter: blur(6px);
+     flex-wrap: wrap;
+     position: sticky;
+     top: 0;
+     z-index: 20;
+     background: rgba(255, 255, 255, 0.8);
+ }
+
+ :root.dark header {
+     background: rgba(11, 16, 32, 0.8);
+ }
+
+ .logo {
+     width: 40px;
+ }
+
+ .brand {
+     font-weight: 800;
+     letter-spacing: 0.5px;
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     font-size: clamp(16px, 3vw, 20px);
+ }
+
+ .brand-badge {
+     width: 32px;
+     height: 32px;
+     min-width: 32px;
+     min-height: 32px;
+     border-radius: 10px;
+     background: linear-gradient(135deg, var(--brand-grad1), var(--brand-grad2));
+     display: grid;
+     place-items: center;
+     color: white;
+     font-weight: 900;
+     transform: rotate(-10deg);
+     font-size: 18px;
+ }
+
+ .accent {
+     color: var(--brand-grad2);
+ }
+
+ .stats {
+     display: flex;
+     gap: 8px;
+     align-items: center;
+     font-weight: 600;
+     flex-wrap: wrap;
+     visibility: visible !important;
+     font-size: clamp(11px, 2vw, 14px);
+ }
+
+ .stat {
+     background: var(--surface);
+     padding: 6px 10px;
+     border-radius: 10px;
+     white-space: nowrap;
+     font-size: clamp(11px, 2vw, 14px);
+ }
+
+ #stats {
+     display: none;
+     gap: 8px;
+     flex-wrap: wrap;
+ }
+
+ /* Mobile: Stack header items vertically */
+ @media (max-width: 768px) {
+     header {
+         padding: 10px 12px;
+         gap: 8px;
+     }
+
+     .stats {
+         width: 100%;
+         justify-content: center;
+         gap: 6px;
+     }
+
+     .stat {
+         padding: 5px 8px;
+         font-size: 11px;
+     }
+
+     .btn.small {
+         padding: 6px 10px;
+         font-size: 11px;
+     }
+ }
+
+ @media (max-width: 480px) {
+     header {
+         padding: 8px 10px;
+     }
+
+     .brand-badge {
+         width: 28px;
+         height: 28px;
+         min-width: 28px;
+         min-height: 28px;
+         font-size: 16px;
+     }
+
+     .stats {
+         gap: 4px;
+     }
+
+     .stat {
+         padding: 4px 6px;
+         font-size: 10px;
+     }
+ }
+
+ /* =========================
+   MAIN CONTENT AREA
+========================= */
+ main {
+     flex: 1;
+     display: grid;
+     place-items: center;
+     padding: 16px;
+     width: 100%;
+     overflow-x: hidden;
+ }
+
+ @media (max-width: 768px) {
+     main {
+         padding: 12px;
+     }
+ }
+
+ @media (max-width: 480px) {
+     main {
+         padding: 10px 8px;
+     }
+ }
+
+ footer {
+     min-height: var(--footer-h);
+     padding: 10px 16px;
+     text-align: center;
+     opacity: .7;
+     font-size: clamp(10px, 2vw, 12px);
+     display: grid;
+     place-items: center;
+     background: rgba(255, 255, 255, 0.5);
+ }
+
+ :root.dark footer {
+     background: rgba(11, 16, 32, 0.5);
+ }
+
+ /* =========================
+   HUD PLAYERS - RESPONSIVE
+========================= */
+ .hud-players {
+     display: flex;
+     gap: 6px;
+     align-items: center;
+     flex-wrap: wrap;
+     justify-content: center;
+ }
+
+ .hud-player {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     padding: 5px 8px;
+     border-radius: 10px;
+     background: var(--surface);
+     font-size: clamp(11px, 2vw, 14px);
+     white-space: nowrap;
+ }
+
+ .hud-player.active {
+     outline: 2px solid var(--brand-grad2);
+ }
+
+ .avatar {
+     width: 22px;
+     height: 22px;
+     min-width: 22px;
+     min-height: 22px;
+     border-radius: 50%;
+     background: linear-gradient(135deg, var(--card-back1), var(--card-back2));
+     color: white;
+     font-size: 11px;
+     font-weight: 900;
+     display: grid;
+     place-items: center;
+ }
+
+ @media (max-width: 480px) {
+     .hud-player {
+         padding: 4px 6px;
+         font-size: 10px;
+     }
+
+     .avatar {
+         width: 18px;
+         height: 18px;
+         min-width: 18px;
+         min-height: 18px;
+         font-size: 10px;
+     }
+ }
+
+ /* =========================
+   BUTTONS - RESPONSIVE
+========================= */
+ .btn {
+     border: none;
+     padding: 12px 16px;
+     border-radius: 12px;
+     font-weight: 700;
+     cursor: pointer;
+     transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+     background: #111827;
+     color: #fff;
+     box-shadow: 0 6px 16px var(--shadow);
+     font-size: clamp(13px, 2.5vw, 15px);
+     white-space: nowrap;
+ }
+
+ .btn:hover {
+     transform: translateY(-1px);
+ }
+
+ .btn:active {
+     transform: translateY(0);
+     filter: brightness(.95);
+ }
+
+ .btn.primary {
+     background: linear-gradient(135deg, var(--brand-grad1), var(--brand-grad2));
+ }
+
+ .btn.ghost {
+     background: var(--surface);
+     color: var(--text);
+     box-shadow: none;
+ }
+
+ .btn.small {
+     padding: 8px 12px;
+     border-radius: 10px;
+     font-weight: 700;
+     font-size: clamp(11px, 2vw, 13px);
+ }
+
+ @media (max-width: 480px) {
+     .btn {
+         padding: 10px 14px;
+         font-size: 12px;
+     }
+
+     .btn.small {
+         padding: 6px 10px;
+         font-size: 11px;
+     }
+ }
+
+ /* =========================
+   WELCOME SECTION - RESPONSIVE
+========================= */
+ .welcome {
+     text-align: center;
+     display: grid;
+     gap: 14px;
+     max-width: 980px;
+     width: 100%;
+     background: rgba(255, 255, 255, 0.7);
+     padding: 24px;
+     border-radius: 18px;
+     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+     animation: floatIn .5s ease both;
+ }
+
+ :root.dark .welcome {
+     background: rgba(15, 22, 46, 0.8);
+ }
+
+ .welcome h1 {
+     margin: 0;
+     font-size: clamp(24px, 5vw, 44px);
+     line-height: 1.2;
+     letter-spacing: .3px;
+ }
+
+ .welcome p {
+     margin: 0;
+     opacity: .8;
+     font-size: clamp(13px, 2.5vw, 16px);
+ }
+
+ @keyframes floatIn {
+     from {
+         transform: translateY(10px);
+         opacity: 0;
+     }
+
+     to {
+         transform: translateY(0);
+         opacity: 1;
+     }
+ }
+
+ .welcome-actions {
+     display: flex;
+     gap: 10px;
+     justify-content: center;
+     margin-top: 10px;
+     flex-wrap: wrap;
+ }
+
+ @media (max-width: 768px) {
+     .welcome {
+         padding: 20px;
+         gap: 12px;
+     }
+ }
+
+ @media (max-width: 480px) {
+     .welcome {
+         padding: 16px;
+         gap: 10px;
+     }
+
+     .welcome-actions {
+         gap: 8px;
+     }
+ }
+
+ /* =========================
+   MODE CARDS - RESPONSIVE GRID
+========================= */
+ .mode-grid {
+     display: grid;
+     gap: 14px;
+     grid-template-columns: repeat(3, minmax(0, 1fr));
+     margin-top: 10px;
+     align-items: stretch;
+ }
+
+ @media (max-width: 900px) {
+     .mode-grid {
+         grid-template-columns: repeat(2, minmax(0, 1fr));
+     }
+ }
+
+ @media (max-width: 600px) {
+     .mode-grid {
+         grid-template-columns: 1fr;
+         gap: 12px;
+     }
+ }
+
+ .mode-card {
+     background: var(--card-front);
+     border: 2px solid var(--ring);
+     border-radius: 14px;
+     padding: 16px;
+     display: grid;
+     gap: 6px;
+     cursor: pointer;
+     transition: border-color .15s ease, transform .06s ease, box-shadow .2s ease;
+     box-shadow: 0 6px 16px var(--shadow);
+ }
+
+ .mode-card:hover,
+ .mode-card:focus {
+     border-color: var(--brand-grad2);
+     transform: translateY(-2px);
+     outline: none;
+ }
+
+ .mode-emoji {
+     font-size: clamp(28px, 6vw, 32px);
+ }
+
+ .mode-title {
+     font-weight: 800;
+     font-size: clamp(16px, 3vw, 18px);
+ }
+
+ .mode-sub {
+     font-size: clamp(11px, 2vw, 12px);
+     color: var(--muted);
+ }
+
+ @media (max-width: 480px) {
+     .mode-card {
+         padding: 14px;
+     }
+ }
+
+ /* =========================
+   BOARD & CARDS - RESPONSIVE
+========================= */
+ .board-wrap {
+     width: 100%;
+     max-width: 100%;
+     display: grid;
+     place-items: center;
+     overflow: hidden;
+     padding: 6px;
+ }
+
+ .board {
+     width: min(1100px, 96vw);
+     max-width: 100%;
+     display: grid;
+     gap: clamp(8px, 1.5vw, 12px);
+     perspective: 1400px;
+     position: relative;
+     transform-origin: top center;
+     will-change: transform;
+ }
+
+ .cols-4 {
+     grid-template-columns: repeat(4, 1fr);
+ }
+
+ .cols-6 {
+     grid-template-columns: repeat(6, 1fr);
+ }
+
+ .cols-8 {
+     grid-template-columns: repeat(8, 1fr);
+ }
+
+ @media (max-width: 768px) {
+     .board {
+         gap: clamp(6px, 1.2vw, 10px);
+         width: min(1100px, 98vw);
+     }
+ }
+
+ @media (max-width: 480px) {
+     .board {
+         gap: 6px;
+         width: 98vw;
+     }
+ }
+
+ .card {
+     position: relative;
+     aspect-ratio: 3 / 4;
+     cursor: pointer;
+     transform-style: preserve-3d;
+     border-radius: clamp(10px, 2vw, 14px);
+     will-change: transform;
+     transition: transform .18s ease;
+     animation: deal .5s cubic-bezier(.2, .8, .2, 1) both;
+ }
+
+ .card:not(.flipped):hover {
+     transform: translateY(-3px);
+ }
+
+ @keyframes deal {
+     from {
+         opacity: 0;
+         transform: translateY(8px) scale(.98);
+     }
+
+     to {
+         opacity: 1;
+         transform: translateY(0) scale(1);
+     }
+ }
+
+ .card-inner {
+     position: absolute;
+     inset: 0;
+     border-radius: clamp(10px, 2vw, 14px);
+     background: #111827;
+     box-shadow: 0 10px 24px rgba(17, 24, 39, .20);
+     transform: rotateY(0);
+     transform-style: preserve-3d;
+     transition: transform .64s cubic-bezier(.2, .8, .2, 1), box-shadow .4s ease;
+     will-change: transform, box-shadow;
+ }
+
+ .flipped .card-inner {
+     transform: rotateY(180deg);
+     box-shadow: 0 16px 32px var(--shadow-strong);
+ }
+
+ .face,
+ .back {
+     position: absolute;
+     inset: 0;
+     display: grid;
+     place-items: center;
+     backface-visibility: hidden;
+     border-radius: clamp(10px, 2vw, 14px);
+     user-select: none;
+ }
+
+ .face {
+     font-size: clamp(20px, 4vw, 42px);
+     background: var(--card-front);
+     color: var(--text);
+     transform: rotateY(180deg);
+ }
+
+ .back {
+     background: linear-gradient(135deg, var(--card-back1), var(--card-back2));
+     color: white;
+     font-weight: 900;
+     letter-spacing: 1px;
+     position: relative;
+     overflow: hidden;
+ }
+
+ /* Logo tetap (pindah ke ::before) */
+ .back::before {
+     content: "";
+     position: absolute;
+     inset: 0;
+     background-image: url('asset/img/logo.png') !important;
+     background-repeat: no-repeat;
+     background-position: center;
+     background-size: 65% auto;
+     opacity: .85;
+     border-radius: inherit;
+ }
+
+ /* Teks Flipop di atasnya */
+ .back::after {
+     content: "Flipop";
+     position: absolute;
+     inset: 0;
+     display: grid;
+     place-items: center;
+     font-weight: 900;
+     letter-spacing: 2px;
+     text-transform: uppercase;
+     font-size: clamp(16px, 4.5vw, 38px);
+     color: #111827;
+     opacity: .2;
+     /* cukup halus agar tidak ganggu */
+     pointer-events: none;
+     border-radius: inherit;
+ }
+
+
+ @media (max-width: 768px) {
+     .face {
+         font-size: clamp(18px, 3.5vw, 36px);
+     }
+ }
+
+ @media (max-width: 480px) {
+     .face {
+         font-size: clamp(16px, 3vw, 28px);
+     }
+
+     .back::after {
+         width: 70%;
+         height: 70%;
+     }
+ }
+
+ /* Match state */
+ .matched {
+     pointer-events: none;
+ }
+
+ .matched .face {
+     outline: 3px solid var(--success);
+     animation: pulse .42s ease;
+ }
+
+ @keyframes pulse {
+     0% {
+         transform: rotateY(180deg) scale(.98)
+     }
+
+     100% {
+         transform: rotateY(180deg) scale(1)
+     }
+ }
+
+ .board.locked .card {
+     pointer-events: none;
+ }
+
+ /* =========================
+   PRESTART & COUNTDOWN - RESPONSIVE
+========================= */
+ .prestart {
+     position: absolute;
+     inset: 0;
+     display: none;
+     place-items: center;
+     z-index: 25;
+     background: rgba(255, 255, 255, .65);
+     backdrop-filter: blur(2px);
+     border-radius: 16px;
+     padding: 20px;
+ }
+
+ :root.dark .prestart {
+     background: rgba(15, 22, 46, .75);
+ }
+
+ .prestart .panel {
+     text-align: center;
+     display: grid;
+     gap: 10px;
+     max-width: 90%;
+ }
+
+ .prestart .panel>div:first-child {
+     font-weight: 800;
+     font-size: clamp(14px, 3vw, 18px);
+ }
+
+ .hint {
+     opacity: .7;
+     font-size: clamp(10px, 2vw, 12px);
+ }
+
+ .countdown {
+     position: absolute;
+     inset: 0;
+     display: none;
+     place-items: center;
+     z-index: 26;
+     font-size: clamp(32px, 8vw, 80px);
+     font-weight: 900;
+     color: var(--text);
+     background: rgba(255, 255, 255, .7);
+     backdrop-filter: blur(2px);
+     border-radius: 16px;
+     animation: pop .2s ease both;
+ }
+
+ :root.dark .countdown {
+     background: rgba(15, 22, 46, .8);
+ }
+
+ @keyframes pop {
+     from {
+         transform: scale(.96);
+         opacity: 0
+     }
+
+     to {
+         transform: scale(1);
+         opacity: 1
+     }
+ }
+
+ .countdown.preview-clear {
+     backdrop-filter: none !important;
+     background: transparent !important;
+ }
+
+ /* =========================
+   MODALS - RESPONSIVE
+========================= */
+ .modal-backdrop {
+     position: fixed;
+     inset: 0;
+     background: rgba(0, 0, 0, .25);
+     display: none;
+     place-items: center;
+     padding: 16px;
+     z-index: 30;
+     overflow-y: auto;
+ }
+
+ .modal {
+     width: 100%;
+     max-width: 560px;
+     max-height: calc(100vh - 40px);
+     overflow-y: auto;
+     background: var(--bg);
+     border-radius: 16px;
+     padding: 22px;
+     border: 2px solid var(--ring);
+     box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+     animation: pop .16s ease both;
+     margin: auto;
+ }
+
+ .modal.large {
+     max-width: 900px;
+ }
+
+ .modal-title {
+     margin-top: 0;
+     font-size: clamp(18px, 4vw, 24px);
+ }
+
+ .choices {
+     display: grid;
+     gap: 10px;
+     grid-template-columns: 1fr;
+ }
+
+ .choice {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 14px;
+     border: 2px solid var(--ring);
+     border-radius: 12px;
+     cursor: pointer;
+     transition: border-color .15s ease, transform .06s ease;
+     gap: 10px;
+     flex-wrap: wrap;
+ }
+
+ .choice:hover {
+     border-color: var(--brand-grad2);
+     transform: translateY(-1px);
+ }
+
+ .modal-actions {
+     display: flex;
+     justify-content: flex-end;
+     gap: 10px;
+     margin-top: 14px;
+     flex-wrap: wrap;
+ }
+
+ .name-fields {
+     display: grid;
+     gap: 10px;
+ }
+
+ .name-fields input,
+ .select {
+     width: 100%;
+     padding: 12px;
+     border-radius: 10px;
+     border: 2px solid var(--ring);
+     background: var(--card-front);
+     color: var(--text);
+     font-size: clamp(13px, 2.5vw, 15px);
+ }
+
+ .table-wrap {
+     overflow: auto;
+     max-height: 60vh;
+     -webkit-overflow-scrolling: touch;
+ }
+
+ .table {
+     width: 100%;
+     border-collapse: collapse;
+     font-size: clamp(11px, 2vw, 14px);
+ }
+
+ .table th,
+ .table td {
+     border-bottom: 1px solid var(--ring);
+     padding: 10px 8px;
+     text-align: left;
+ }
+
+ .table th {
+     position: sticky;
+     top: 0;
+     background: var(--surface);
+     font-weight: 700;
+ }
+
+ .lb-tab.active,
+ .lb-diff-btn.active,
+ #timeDiffBtns .btn.active {
+     outline: 2px solid var(--brand-grad2);
+ }
+
+ .lb-tabs,
+ .lb-diff {
+     display: flex;
+     gap: 8px;
+     margin-bottom: 12px;
+     flex-wrap: wrap;
+ }
+
+ @media (max-width: 768px) {
+     .modal {
+         padding: 18px;
+         max-width: calc(100% - 24px);
+     }
+
+     .choice {
+         padding: 12px;
+     }
+
+     .table th,
+     .table td {
+         padding: 8px 6px;
+         font-size: 11px;
+     }
+ }
+
+ @media (max-width: 480px) {
+     .modal {
+         padding: 16px;
+         max-width: calc(100% - 16px);
+         border-radius: 12px;
+     }
+
+     .modal-title {
+         font-size: 18px;
+     }
+
+     .choice {
+         padding: 10px;
+         flex-direction: column;
+         align-items: flex-start;
+     }
+
+     .modal-actions {
+         flex-direction: column;
+         width: 100%;
+     }
+
+     .modal-actions .btn {
+         width: 100%;
+     }
+
+     .table th,
+     .table td {
+         padding: 6px 4px;
+         font-size: 10px;
+     }
+ }
+
+ /* =========================
+   WIN/LOSE - RESPONSIVE
+========================= */
+ .win {
+     position: fixed;
+     inset: 0;
+     display: none;
+     place-items: center;
+     z-index: 40;
+     padding: 20px;
+     overflow-y: auto;
+ }
+
+ .win .panel {
+     background: rgba(255, 255, 255, .9);
+     border: 2px solid var(--ring);
+     backdrop-filter: blur(4px);
+     padding: 28px;
+     border-radius: 18px;
+     text-align: center;
+     box-shadow: 0 20px 60px rgba(0, 0, 0, .15);
+     animation: floatIn .4s ease both;
+     max-width: 90vw;
+ }
+
+ :root.dark .win .panel {
+     background: rgba(15, 22, 46, .95);
+ }
+
+ .big {
+     font-size: clamp(22px, 5vw, 42px);
+     font-weight: 900;
+     margin: 0 0 8px;
+ }
+
+ .sub {
+     margin: 0 0 20px;
+     opacity: .8;
+     font-size: clamp(13px, 2.5vw, 16px);
+ }
+
+ @media (max-width: 480px) {
+     .win .panel {
+         padding: 20px;
+     }
+
+     .win .panel .btn {
+         width: 100%;
+     }
+ }
+
+ /* =========================
+   CONFETTI
+========================= */
+ .confetti {
+     position: fixed;
+     inset: 0;
+     pointer-events: none;
+     overflow: hidden;
+     z-index: 45;
+ }
+
+ .confetti i {
+     position: absolute;
+     width: 10px;
+     height: 14px;
+     opacity: .9;
+     border-radius: 2px;
+     animation: fall linear forwards;
+ }
+
+ @keyframes fall {
+     to {
+         transform: translateY(110vh) rotate(620deg);
+         opacity: 1;
+     }
+ }
+
+ /* =========================
+   SPLASH & OVERLAYS - RESPONSIVE
+========================= */
+ .overlay {
+     position: fixed;
+     inset: 0;
+     z-index: 50;
+     display: none;
+     place-items: center;
+     background: radial-gradient(1200px 600px at 70% -10%, #dbeafe88 0%, rgba(0, 0, 0, .25) 60%);
+     backdrop-filter: blur(3px);
+     transition: opacity .25s ease, transform .25s ease;
+     padding: 20px;
+     overflow-y: auto;
+ }
+
+ .overlay.show {
+     display: grid;
+     opacity: 1;
+ }
+
+ .overlay.fade-out {
+     opacity: 0;
+     pointer-events: none;
+ }
+
+ .splash-card,
+ .hello-card {
+     width: min(700px, 92vw);
+     background: var(--bg);
+     border: 2px solid var(--ring);
+     border-radius: 18px;
+     padding: 26px;
+     text-align: center;
+     box-shadow: 0 20px 60px rgba(0, 0, 0, .28);
+     transform: translateY(6px);
+     animation: floatIn .35s ease both;
+ }
+
+ .splash-title {
+     margin: 0 0 10px;
+     font-size: clamp(26px, 5vw, 46px);
+     font-weight: 900;
+     letter-spacing: .4px;
+ }
+
+ .splash-sub {
+     margin: 0;
+     opacity: .8;
+     font-size: clamp(13px, 2.5vw, 16px);
+ }
+
+ .tap-anywhere {
+     margin-top: 12px;
+     font-size: clamp(10px, 2vw, 12px);
+     opacity: .7;
+ }
+
+ .hello-text {
+     font-size: clamp(20px, 4vw, 36px);
+     font-weight: 900;
+     background: linear-gradient(135deg, var(--brand-grad1), var(--brand-grad2));
+     -webkit-background-clip: text;
+     background-clip: text;
+     color: transparent;
+     animation: wave 1.2s ease both;
+ }
+
+ @keyframes wave {
+     from {
+         letter-spacing: .5px;
+         filter: blur(6px);
+         opacity: 0;
+         transform: translateY(6px);
+     }
+
+     to {
+         letter-spacing: .2px;
+         filter: blur(0);
+         opacity: 1;
+         transform: translateY(0);
+     }
+ }
+
+ @media (max-width: 480px) {
+
+     .splash-card,
+     .hello-card {
+         padding: 20px;
+         width: min(700px, 95vw);
+     }
+ }
+
+ /* =========================
+   UTILITY & MISC
+========================= */
+ .board-safe-padding {
+     padding: 6px;
+ }
+
+ .mode-card:focus-visible,
+ .btn:focus-visible {
+     outline: 2px solid var(--brand-grad2);
+     outline-offset: 2px;
+ }
+
+ .field-row {
+     margin-bottom: 12px;
+ }
+
+ .field-row label {
+     font-weight: 700;
+     display: block;
+     margin-bottom: 6px;
+     font-size: clamp(13px, 2.5vw, 15px);
+ }
+
+ #timeDiffBtns {
+     display: flex;
+     gap: 8px;
+     flex-wrap: wrap;
+ }
+
+ #timeDiffHint {
+     font-size: clamp(10px, 2vw, 12px);
+     opacity: .75;
+     margin-top: 6px;
+ }
+
+ /* Smooth scrolling */
+ html {
+     scroll-behavior: smooth;
+ }
+
+ /* Custom scrollbar */
+ ::-webkit-scrollbar {
+     width: 8px;
+     height: 8px;
+ }
+
+ ::-webkit-scrollbar-track {
+     background: var(--surface);
+ }
+
+ ::-webkit-scrollbar-thumb {
+     background: var(--muted);
+     border-radius: 4px;
+ }
+
+ ::-webkit-scrollbar-thumb:hover {
+     background: var(--text);
+ }
+
+ /* Touch device optimization */
+ @media (hover: none) and (pointer: coarse) {
+     .card:not(.flipped):hover {
+         transform: none;
+     }
+
+     .btn:hover {
+         transform: none;
+     }
+
+     .choice:hover {
+         transform: none;
+     }
+
+     .mode-card:hover {
+         transform: none;
+     }
+ }
+
+ /* =========================
+   ADDITIONAL RESPONSIVE FIXES
+========================= */
+
+ /* Very small screens (320px) */
+ @media (max-width: 360px) {
+     :root {
+         --header-h: 56px;
+         --footer-h: 32px;
+     }
+
+     header {
+         padding: 6px 8px;
+     }
+
+     .brand {
+         font-size: 14px;
+     }
+
+     .brand-badge {
+         width: 24px;
+         height: 24px;
+         min-width: 24px;
+         min-height: 24px;
+         font-size: 14px;
+     }
+
+     .stats {
+         gap: 4px;
+     }
+
+     .stat {
+         padding: 3px 5px;
+         font-size: 9px;
+     }
+
+     .btn {
+         padding: 8px 12px;
+         font-size: 11px;
+     }
+
+     .btn.small {
+         padding: 5px 8px;
+         font-size: 10px;
+     }
+
+     .hud-player {
+         padding: 3px 5px;
+         font-size: 9px;
+     }
+
+     .avatar {
+         width: 16px;
+         height: 16px;
+         min-width: 16px;
+         min-height: 16px;
+         font-size: 9px;
+     }
+
+     .board {
+         gap: 4px;
+     }
+
+     .face {
+         font-size: clamp(14px, 2.5vw, 24px);
+     }
+
+     .welcome {
+         padding: 12px;
+     }
+
+     .welcome h1 {
+         font-size: 20px;
+     }
+
+     .welcome p {
+         font-size: 11px;
+     }
+
+     .mode-card {
+         padding: 10px;
+     }
+
+     .mode-emoji {
+         font-size: 24px;
+     }
+
+     .mode-title {
+         font-size: 14px;
+     }
+
+     .mode-sub {
+         font-size: 10px;
+     }
+
+     .modal {
+         padding: 12px;
+     }
+
+     .modal-title {
+         font-size: 16px;
+     }
+
+     .table th,
+     .table td {
+         padding: 4px 3px;
+         font-size: 9px;
+     }
+ }
+
+ /* Landscape mode on mobile */
+ @media (max-height: 500px) and (orientation: landscape) {
+     header {
+         min-height: 48px;
+         padding: 6px 12px;
+     }
+
+     :root {
+         --header-h: 48px;
+         --footer-h: 28px;
+     }
+
+     .brand-badge {
+         width: 24px;
+         height: 24px;
+         min-width: 24px;
+         min-height: 24px;
+     }
+
+     .stat {
+         padding: 4px 6px;
+         font-size: 10px;
+     }
+
+     .btn.small {
+         padding: 5px 8px;
+         font-size: 10px;
+     }
+
+     footer {
+         min-height: 28px;
+         padding: 6px 12px;
+         font-size: 10px;
+     }
+
+     .welcome {
+         padding: 16px;
+     }
+
+     .welcome h1 {
+         font-size: 22px;
+     }
+
+     .mode-emoji {
+         font-size: 24px;
+     }
+
+     .board {
+         gap: 6px;
+     }
+ }
+
+ /* Tablet portrait */
+ @media (min-width: 481px) and (max-width: 768px) {
+     .board {
+         width: min(1100px, 94vw);
+         gap: 10px;
+     }
+
+     .welcome {
+         padding: 22px;
+     }
+
+     .modal {
+         padding: 20px;
+     }
+ }
+
+ /* Tablet landscape & Desktop */
+ @media (min-width: 769px) and (max-width: 1024px) {
+     .board {
+         width: min(1100px, 92vw);
+     }
+
+     header {
+         padding: 12px 24px;
+     }
+
+     main {
+         padding: 20px;
+     }
+ }
+
+ /* Large desktop */
+ @media (min-width: 1400px) {
+     .board {
+         width: min(1200px, 90vw);
+     }
+
+     .welcome {
+         max-width: 1100px;
+     }
+ }
+
+ /* Print styles */
+ @media print {
+
+     header,
+     footer,
+     .stats,
+     .btn,
+     .confetti,
+     .overlay {
+         display: none !important;
+     }
+
+     body {
+         background: white;
+     }
+
+     .board {
+         page-break-inside: avoid;
+     }
+ }
+
+ /* Reduced motion for accessibility */
+ @media (prefers-reduced-motion: reduce) {
+
+     *,
+     *::before,
+     *::after {
+         animation-duration: 0.01ms !important;
+         animation-iteration-count: 1 !important;
+         transition-duration: 0.01ms !important;
+         scroll-behavior: auto !important;
+     }
+ }
+
+ /* High contrast mode support */
+ @media (prefers-contrast: high) {
+     .btn {
+         border: 2px solid currentColor;
+     }
+
+     .card-inner {
+         border: 2px solid currentColor;
+     }
+
+     .mode-card {
+         border-width: 3px;
+     }
+ }
+
+ /* Dark mode specific adjustments */
+ :root.dark .modal-backdrop {
+     background: rgba(0, 0, 0, .5);
+ }
+
+ :root.dark .welcome {
+     background: rgba(15, 22, 46, 0.85);
+ }
+
+ :root.dark .splash-card,
+ :root.dark .hello-card {
+     background: var(--surface);
+ }
+
+ /* Safe area insets for mobile notch devices */
+ @supports (padding: env(safe-area-inset-left)) {
+     header {
+         padding-left: max(16px, env(safe-area-inset-left));
+         padding-right: max(16px, env(safe-area-inset-right));
+     }
+
+     main {
+         padding-left: max(16px, env(safe-area-inset-left));
+         padding-right: max(16px, env(safe-area-inset-right));
+     }
+
+     footer {
+         padding-left: max(16px, env(safe-area-inset-left));
+         padding-right: max(16px, env(safe-area-inset-right));
+         padding-bottom: max(10px, env(safe-area-inset-bottom));
+     }
+
+     .modal-backdrop {
+         padding-left: max(16px, env(safe-area-inset-left));
+         padding-right: max(16px, env(safe-area-inset-right));
+     }
+ }
+
+ /* Fix iOS Safari 100vh issue */
+ @supports (-webkit-touch-callout: none) {
+     body {
+         min-height: -webkit-fill-available;
+     }
+ }
+
+ /* Ensure proper stacking context */
+ .board {
+     isolation: isolate;
+ }
+
+ /* Performance optimizations for animations */
+ .card,
+ .card-inner,
+ .btn {
+     backface-visibility: hidden;
+     -webkit-backface-visibility: hidden;
+ }
+
+ /* Improve text rendering */
+ body {
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+     text-rendering: optimizeLegibility;
+ }
+
+ /* Prevent text selection on game elements */
+ .card,
+ .btn,
+ .mode-card {
+     -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+     user-select: none;
+ }
+
+ /* Allow text selection in modals */
+ .modal,
+ .modal input,
+ .modal textarea {
+     -webkit-user-select: text;
+     -moz-user-select: text;
+     -ms-user-select: text;
+     user-select: text;
+ }
+
+ /* Focus visible for keyboard navigation */
+ .btn:focus-visible,
+ .mode-card:focus-visible,
+ .choice:focus-visible,
+ input:focus-visible,
+ select:focus-visible {
+     outline: 2px solid var(--brand-grad2);
+     outline-offset: 2px;
+ }
+
+ /* Loading state (if needed) */
+ .loading {
+     pointer-events: none;
+     opacity: 0.6;
+     cursor: wait;
+ }
+
+ /* Disabled state */
+ .btn:disabled {
+     opacity: 0.5;
+     cursor: not-allowed;
+     pointer-events: none;
+ }
+
+ /* Error state for inputs */
+ input:invalid {
+     border-color: #ef4444;
+ }
+
+ /* Success state for inputs */
+ input:valid {
+     border-color: var(--success);
+ }
+
+ /* =========================
+   OVERRIDES: KARTU TERANG + PUSATKAN + SAFE WIDTH
+   Tempel paling bawah style agar menimpa aturan sebelumnya
+========================= */
+
+ /* Kartu selalu putih/terang (baik light maupun dark mode) */
+ .face {
+     background: #ffffff !important;
+     color: #111827 !important;
+     /* teks emoji kontras */
+ }
+
+ .back {
+     background: #ffffff !important;
+     /* belakang putih */
+     color: #111827;
+     border: 2px solid var(--ring);
+     /* tegas tapi halus */
+ }
+
+ /* Pastikan path logo Anda benar: asset/img/logo.png */
+ .back::after {
+     background-image: url('asset/img/logo.png') !important;
+     opacity: .9;
+     /* logo sedikit tegas */
+ }
+
+ /* Board benar-benar di tengah dan aman ukuran lebarnya */
+ .board-wrap {
+     display: flex !important;
+     justify-content: center !important;
+     align-items: flex-start !important;
+     overflow: hidden !important;
+     /* cegah scroll horizontal & “geser kanan” */
+     padding: 6px;
+ }
+
+ /* Lebar board yang aman (hindari 98vw karena bisa geser kanan di mobile) */
+ .board {
+     width: min(1000px, 94vw) !important;
+     margin: 0 auto !important;
+ }
+
+ /* Sesuaikan per breakpoint agar tak “nabrak” */
+ @media (max-width: 768px) {
+     .board {
+         width: 94vw !important;
+     }
+ }
+
+ @media (max-width: 480px) {
+     .board {
+         width: 92vw !important;
+     }
+ }
+
+ /* Sedikit perbaikan visual kartu */
+ .card-inner {
+     box-shadow: 0 10px 24px rgba(17, 24, 39, .14) !important;
+     border-radius: clamp(10px, 2vw, 14px);
+ }
+
+ .face,
+ .back {
+     border-radius: clamp(10px, 2vw, 14px);
+ }
+
+ /* Saat tema gelap, kartu tetap terang (override tambahan) */
+ :root.dark .face,
+ :root.dark .back {
+     background: #ffffff !important;
+     color: #111827 !important;
+ }
+
+ /* Kurangi kemungkinan overflow karena scrollbar */
+ html,
+ body {
+     overflow-x: hidden !important;
+ }
+
+ /* Board selalu center meski di-scale */
+ .board {
+     transform-origin: top center !important;
+     margin-inline: auto;
+ }
+
+ /* === CARD ALWAYS WHITE + THIN BLACK BORDER + BACK LOGO === */
+ .card-inner {
+     background: #fff !important;
+     box-shadow: 0 10px 24px rgba(17, 24, 39, .14) !important;
+ }
+
+ /* kedua sisi putih + teks gelap + border hitam tipis */
+ .face,
+ .back {
+     background: #ffffff !important;
+     color: #111827 !important;
+     border: 1px solid #111 !important;
+     border-radius: clamp(10px, 2vw, 14px);
+ }
+
+ /* dark mode pun tetap putih */
+ :root.dark .face,
+ :root.dark .back {
+     background: #ffffff !important;
+     color: #111827 !important;
+     border: 1px solid #111 !important;
+ }
+
+ /* logo di belakang kartu (pakai file Anda) */
+ .back::after {
+     content: "";
+     position: absolute;
+     width: 65%;
+     height: 65%;
+     background-image: url('asset/img/logo.png') !important;
+     background-repeat: no-repeat;
+     background-position: center;
+     background-size: contain;
+     opacity: .9;
+     border-radius: 10px;
+ }
+
+ /* === FLEX LAYOUT BASE === */
+ .board.flex-layout {
+     display: flex !important;
+     flex-wrap: wrap;
+     justify-content: center;
+     /* agar baris tidak penuh tetap center */
+     gap: clamp(8px, 1.5vw, 12px);
+ }
+
+ .board.flex-layout .card {
+     flex: 0 0 auto;
+     /* gunakan width yang kita set di bawah */
+ }
+
+ /* =======================
+   MOBILE (≤ 480px)
+   - 8  : 2x2x2x2
+   - 16 : 4x4x4x4
+   - 32 : 4x6x6x6x6x4
+======================= */
+ @media (max-width: 480px) {
+
+     /* 8 kartu: 2 per baris */
+     .board.flex-layout.layout-4x2 .card {
+         width: calc((100% - 3 * var(--gap, 12px)) / 2);
+         /* kira-kira 50% */
+         /* fallback bila var(--gap) tidak ada */
+         width: calc((100% - 36px) / 2);
+     }
+
+     /* 16 kartu: 4 per baris */
+     .board.flex-layout.layout-6-6-4 .card {
+         width: calc((100% - 5 * var(--gap, 12px)) / 4);
+         /* ~25% */
+         width: calc((100% - 60px) / 4);
+     }
+
+     /* 32 kartu: 4,6,6,6,6,4 */
+     /* default: 4 kolom untuk awal/akhir */
+     .board.flex-layout.layout-8x4 .card {
+         width: calc((100% - 5 * var(--gap, 12px)) / 4);
+         width: calc((100% - 60px) / 4);
+     }
+
+     /* baris 2–5: 6 kolom (item 5–28) */
+     .board.flex-layout.layout-8x4 .card:nth-child(n+5):nth-child(-n+28) {
+         width: calc((100% - 7 * var(--gap, 12px)) / 6);
+         /* ~16.666% */
+         width: calc((100% - 84px) / 6);
+     }
+ }
+
+ /* =======================
+   DESKTOP (≥ 1025px)
+   - 8  : 4x4
+   - 16 : 3x5x5x3
+   - 32 : 8x8x8x8
+======================= */
+ @media (min-width: 1025px) {
+
+     /* 8 kartu: 4 per baris */
+     .board.flex-layout.layout-4x2 .card {
+         width: calc((100% - 7 * var(--gap, 12px)) / 4);
+         /* ~25% */
+         width: calc((100% - 84px) / 4);
+     }
+
+     /* 16 kartu: 3,5,5,3 */
+     /* base: 5 kolom untuk tengah */
+     .board.flex-layout.layout-6-6-4 .card {
+         width: calc((100% - 9 * var(--gap, 12px)) / 5);
+         /* ~20% */
+         width: calc((100% - 108px) / 5);
+     }
+
+     /* baris 1: 3 kolom (item 1–3) */
+     .board.flex-layout.layout-6-6-4 .card:nth-child(-n+3),
+     /* baris 4: 3 kolom (item 14–16) */
+     .board.flex-layout.layout-6-6-4 .card:nth-child(n+14) {
+         width: calc((100% - 5 * var(--gap, 12px)) / 3);
+         /* ~33.333% */
+         width: calc((100% - 60px) / 3);
+     }
+
+     /* 32 kartu: 8 per baris */
+     .board.flex-layout.layout-8x4 .card {
+         width: calc((100% - 15 * var(--gap, 12px)) / 8);
+         /* 12.5% */
+         width: calc((100% - 180px) / 8);
+     }
+ }
+
+ /* === 1) Samakan perhitungan: satu variabel gap === */
+ .board.flex-layout {
+     --g: 10px;
+     /* atur sekali di sini */
+     gap: var(--g) !important;
+     /* semua baris pakai gap yang sama */
+ }
+
+ /* Kartu tidak ikut melar; ukuran diambil dari width yang kita set */
+ .board.flex-layout .card {
+     flex: 0 0 auto !important;
+     box-sizing: border-box;
+     /* border dihitung ke dalam width */
+     aspect-ratio: 3 / 4;
+     /* tinggi konsisten dari rasio */
+ }
+
+ .card-inner {
+     height: 100%;
+ }
+
+ /* isi kartu ikut penuh */
+
+ /* =======================
+   MOBILE (≤ 480px)
+   - 8  : 2x2x2x2 (2 kolom)
+   - 16 : 4x4x4x4 (4 kolom)
+   - 32 : 4,6,6,6,6,4 (baris 2–5 = 6 kolom)
+======================= */
+ @media (max-width: 480px) {
+
+     /* 8 kartu → 2 kolom */
+     .board.flex-layout.layout-4x2 .card {
+         width: calc((100% - (2 - 1) * var(--g)) / 2);
+     }
+
+     /* 16 kartu → 4 kolom */
+     .board.flex-layout.layout-6-6-4 .card {
+         width: calc((100% - (4 - 1) * var(--g)) / 4);
+     }
+
+     /* 32 kartu: default 4 kolom (baris 1 & 6) */
+     .board.flex-layout.layout-8x4 .card {
+         width: calc((100% - (4 - 1) * var(--g)) / 4);
+     }
+
+     /* baris 2–5 (item 5–28) → 6 kolom */
+     .board.flex-layout.layout-8x4 .card:nth-child(n+5):nth-child(-n+28) {
+         width: calc((100% - (6 - 1) * var(--g)) / 6);
+     }
+ }
+
+ /* =======================
+   DESKTOP (≥ 1025px)
+   - 8  : 4x4      (4 kolom)
+   - 16 : 3,5,5,3  (baris 1 & 4 = 3 kolom; tengah 5 kolom)
+   - 32 : 8x8x8x8  (8 kolom)
+======================= */
+ @media (min-width: 1025px) {
+
+     /* 8 kartu → 4 kolom */
+     .board.flex-layout.layout-4x2 .card {
+         width: calc((100% - (4 - 1) * var(--g)) / 4);
+     }
+
+     /* 16 kartu: default 5 kolom */
+     .board.flex-layout.layout-6-6-4 .card {
+         width: calc((100% - (5 - 1) * var(--g)) / 5);
+     }
+
+     /* baris 1: item 1–3 (3 kolom) */
+     .board.flex-layout.layout-6-6-4 .card:nth-child(-n+3),
+     /* baris 4: item 14–16 (3 kolom) */
+     .board.flex-layout.layout-6-6-4 .card:nth-child(n+14) {
+         width: calc((100% - (3 - 1) * var(--g)) / 3);
+     }
+
+     /* 32 kartu → 8 kolom */
+     .board.flex-layout.layout-8x4 .card {
+         width: calc((100% - (8 - 1) * var(--g)) / 8);
+     }
+ }
+
+ /* ==== UNIFORM CARD GRID (PASTE DI PALING BAWAH) ==== */
+
+ /* Matikan aturan width khusus lama agar tidak bikin ukuran beda-beda */
+ .board.flex-layout .card {
+     width: auto !important;
+ }
+
+ .board.flex-layout.layout-6-6-4 .card:nth-child(-n+3),
+ .board.flex-layout.layout-6-6-4 .card:nth-child(n+14),
+ .board.flex-layout.layout-8x4 .card:nth-child(n+5):nth-child(-n+28) {
+     width: auto !important;
+ }
+
+ /* Pakai GRID agar semua kartu seragam dan auto-wrap */
+ .board.flex-layout {
+     display: grid !important;
+     --g: 10px;
+     gap: var(--g) !important;
+     grid-auto-rows: 1fr;
+     /* tinggi baris konsisten */
+     align-items: stretch;
+ }
+
+ /* Kartu isi penuh cell grid + rasio 3:4 supaya tinggi konsisten */
+ .board.flex-layout .card {
+     aspect-ratio: 3 / 4 !important;
+     height: auto !important;
+     /* width akan otomatis mengikuti kolom grid */
+ }
+
+ /* ======== BREAKPOINTS & JUMLAH KOLOM ======== */
+ /* Mobile (≤480px)
+   - 8  : 2 kolom
+   - 16 : 4 kolom
+   - 32 : 4 kolom
+*/
+ @media (max-width: 480px) {
+     .board.flex-layout.layout-4x2 {
+         grid-template-columns: repeat(2, 1fr) !important;
+     }
+
+     .board.flex-layout.layout-6-6-4,
+     .board.flex-layout.layout-8x4 {
+         grid-template-columns: repeat(4, 1fr) !important;
+     }
+ }
+
+ /* Tablet (481–1024px)
+   - 8  : 3 kolom
+   - 16 : 4 kolom
+   - 32 : 6 kolom
+*/
+ @media (min-width: 481px) and (max-width: 1024px) {
+     .board.flex-layout.layout-4x2 {
+         grid-template-columns: repeat(3, 1fr) !important;
+     }
+
+     .board.flex-layout.layout-6-6-4 {
+         grid-template-columns: repeat(4, 1fr) !important;
+     }
+
+     .board.flex-layout.layout-8x4 {
+         grid-template-columns: repeat(6, 1fr) !important;
+     }
+ }
+
+ /* Desktop (≥1025px)
+   - 8  : 4 kolom (4x2)
+   - 16 : 4 kolom (4x4)  → semua kartu sama besar
+   - 32 : 8 kolom (8x4)
+*/
+ @media (min-width: 1025px) {
+     .board.flex-layout.layout-4x2 {
+         grid-template-columns: repeat(4, 1fr) !important;
+     }
+
+     .board.flex-layout.layout-6-6-4 {
+         grid-template-columns: repeat(4, 1fr) !important;
+     }
+
+     /* <-- perbaikan kasus 16 kartu */
+     .board.flex-layout.layout-8x4 {
+         grid-template-columns: repeat(8, 1fr) !important;
+     }
+ }
+
+ /* Jaga agar board tetap center dan aman lebar */
+ .board-wrap {
+     display: flex !important;
+     justify-content: center !important;
+     align-items: flex-start !important;
+     overflow: hidden !important;
+     padding: 6px;
+ }
+
+ .board {
+     width: min(1000px, 94vw) !important;
+     margin: 0 auto !important;
+     transform-origin: top center !important;
+ }
+
+ @media (max-width: 768px) {
+     .board {
+         width: 94vw !important;
+     }
+ }
+
+ @media (max-width: 480px) {
+     .board {
+         width: 92vw !important;
+     }
+ }
+
+ /* Pastikan kedua sisi kartu selalu seragam visual */
+ .card-inner {
+     background: #fff !important;
+     box-shadow: 0 10px 24px rgba(17, 24, 39, .14) !important;
+ }
+
+ .face,
+ .back {
+     background: #fff !important;
+     color: #111827 !important;
+     border: 1px solid #111 !important;
+     border-radius: clamp(10px, 2vw, 14px);
+ }
+
+ :root.dark .face,
+ :root.dark .back {
+     background: #fff !important;
+     color: #111827 !important;
+     border: 1px solid #111 !important;
+ }
+
+ /* Logo belakang tetap */
+ .back::after {
+     content: "";
+     position: absolute;
+     width: 65%;
+     height: 65%;
+     background-image: url('asset/img/logo.png') !important;
+     background-repeat: no-repeat;
+     background-position: center;
+     background-size: contain;
+     opacity: .9;
+     border-radius: 10px;
+ }
+
+ :root {
+     --font-sans: "Satoshi", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+ }
+
+ html,
+ body,
+ button,
+ input,
+ select,
+ textarea {
+     font-family: var(--font-sans) !important;
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+ }
+
+ /* (opsional) mapping berat */
+ h1,
+ .brand,
+ .big {
+     font-weight: 900;
+ }
+
+ h2,
+ h3,
+ .mode-title,
+ .btn {
+     font-weight: 700;
+ }
+
+ body,
+ p,
+ .stat,
+ .hud-player,
+ .mode-sub {
+     font-weight: 400;
+ }
+
+ /* ==== Teks "Flipop" di belakang kartu ==== */
+ .back {
+     position: relative;
+     /* pastikan positioning konteksnya ada */
+ }
+
+ .back-label {
+     position: absolute;
+     inset: 0;
+     display: grid;
+     place-items: center;
+     font-weight: 900;
+     letter-spacing: 2px;
+     text-transform: uppercase;
+     font-size: clamp(16px, 4.5vw, 38px);
+     color: #111827;
+     opacity: .20;
+     /* halus, tidak ganggu */
+     pointer-events: none;
+     /* klik tetap kena ke kartu */
+     user-select: none;
+ }
+
+ /* Jika kamu masih pakai logo di .back::after, pastikan teks di atasnya: */
+ .back-label {
+     z-index: 1;
+ }
+
+ .back::after {
+     z-index: 0;
+ }
+
+ /* ==== PAKSA tulis "Flipop" di belakang kartu ==== */
+
+ /* 1) Matikan semua ::after lama yang pakai logo/ gambar */
+ .back::after {
+     content: none !important;
+     /* hilangkan pseudo lama */
+ }
+
+ /* 2) Tampilkan teks via ::before (baru) */
+ .back {
+     position: relative !important;
+ }
+
+ .back::before {
+     content: "Flipop" !important;
+     position: absolute !important;
+     inset: 0 !important;
+     display: grid !important;
+     place-items: center !important;
+
+     /* gaya teks */
+     font-weight: 900 !important;
+     letter-spacing: 2px !important;
+     text-transform: uppercase !important;
+     font-size: clamp(18px, 5vw, 42px) !important;
+     color: #111827 !important;
+     opacity: 0.9 !important;
+     /* bikin terlihat jelas dulu */
+     pointer-events: none !important;
+     z-index: 2 !important;
+     border-radius: inherit !important;
+ }
+
+ /* (opsional) Kalau mau agak halus, turunkan opacity ke 0.2–0.3 */

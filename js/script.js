@@ -6,6 +6,7 @@ const fmtMMSS = (sec) => {
   const s = (sec % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
 };
+
 const shuffle = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -19,6 +20,9 @@ const el = (tag, cls, txt) => {
   if (txt !== undefined) e.textContent = txt;
   return e;
 };
+
+// ====== API URL (fix: gunakan file ini sendiri, tidak hardcode) ======
+const API_URL = window.location.pathname;
 
 // ====== Consts ======
 const DIFFICULTIES = [
@@ -169,8 +173,6 @@ const ICON_SETS = {
     "🦋",
   ],
 };
-// fallback lama (kalau ada referensi lama ke ICONS)
-const ICONS = ICON_SETS.acak;
 
 // Time Trial
 const TIME_DIFFS = [
@@ -178,10 +180,7 @@ const TIME_DIFFS = [
   { key: "sedang", label: "Waktu Sedang" },
   { key: "sulit", label: "Waktu Sulit" },
 ];
-
-// mapping limit waktu (detik) per jumlah kartu (8/16/32 = pairs 4/8/16)
 function getTimeLimit(pairs, timeKey) {
-  // default (8 kartu / 4 pasang)
   let limits = { mudah: 120, sedang: 60, sulit: 30 };
   if (pairs === 8) limits = { mudah: 180, sedang: 90, sulit: 45 };
   if (pairs === 16) limits = { mudah: 420, sedang: 300, sulit: 180 };
@@ -189,6 +188,7 @@ function getTimeLimit(pairs, timeKey) {
 }
 
 // ====== Elements ======
+const boardWrapEl = document.querySelector(".board-wrap");
 const boardEl = document.getElementById("board");
 const welcomeEl = document.getElementById("welcome");
 const modalDiff = document.getElementById("modalDiff");
@@ -203,13 +203,21 @@ const hudPlayersEl = document.getElementById("hudPlayers");
 
 const modalName = document.getElementById("modalName");
 const nameFields = document.getElementById("nameFields");
-const btnNamaBatal = document.getElementById("btnNamaBatal");
 const btnNamaOK = document.getElementById("btnNamaOK");
 
 const modalHistory = document.getElementById("modalHistory");
 const tblHistory = document.getElementById("tblHistory");
 const modalLb = document.getElementById("modalLb");
 const tblLb = document.getElementById("tblLb");
+
+// Splash overlays
+const overlaySplash = document.getElementById("overlaySplash");
+const overlayNameFirst = document.getElementById("overlayNameFirst");
+const overlayHello = document.getElementById("overlayHello");
+const firstNameInput = document.getElementById("firstNameInput");
+const firstNameCancel = document.getElementById("firstNameCancel");
+const firstNameOK = document.getElementById("firstNameOK");
+const helloText = document.getElementById("helloText");
 
 // Buttons (header)
 document
@@ -232,7 +240,7 @@ document.getElementById("btnMulai").addEventListener("click", () => {
   openNameModal();
 });
 
-// Mode cards (klik untuk memilih mode)
+// Mode cards
 document.querySelectorAll(".mode-card").forEach((card) => {
   card.addEventListener("click", () => {
     state.mode = card.dataset.mode; // 'solo' | 'duel' | 'timetrial'
@@ -311,13 +319,52 @@ function toggleTheme() {
   );
 }
 
-// ====== Deck & Board ======
 function setGridCols() {
   const total = state.difficulty.pairs * 2;
-  boardEl.classList.remove("cols-4", "cols-6", "cols-8");
-  if (total <= 8) boardEl.classList.add("cols-4");
-  else if (total <= 16) boardEl.classList.add("cols-6");
-  else boardEl.classList.add("cols-8");
+
+  // Bersihkan kelas layout khusus dulu
+  boardEl.classList.remove(
+    "flex-layout",
+    "layout-4x2",
+    "layout-6-6-4",
+    "layout-8x4"
+  );
+
+  // Gunakan layout khusus untuk 8 / 16 / 32 kartu
+  if (total === 8) {
+    boardEl.classList.add("flex-layout", "layout-4x2");
+    return; // tidak perlu set grid-template-columns
+  }
+  if (total === 16) {
+    boardEl.classList.add("flex-layout", "layout-6-6-4");
+    return;
+  }
+  if (total === 32) {
+    boardEl.classList.add("flex-layout", "layout-8x4");
+    return;
+  }
+
+  // --- fallback: pakai grid responsif lamamu (untuk jumlah lain) ---
+  const w = window.innerWidth;
+  let cols;
+
+  if (w <= 420) {
+    cols = total <= 8 ? 2 : 4;
+  } else if (w <= 768) {
+    if (total <= 8) cols = 3;
+    else if (total <= 16) cols = 4;
+    else cols = 6;
+  } else if (w <= 1200) {
+    if (total <= 8) cols = 4;
+    else if (total <= 16) cols = 4;
+    else cols = 6;
+  } else {
+    if (total <= 8) cols = 4;
+    else if (total <= 16) cols = 4;
+    else cols = 8;
+  }
+
+  boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 }
 
 function buildDeck() {
@@ -331,32 +378,82 @@ function buildDeck() {
   ]);
   state.deck = shuffle(doubled);
 }
-
 function createCardElement(cardData, idx) {
   const root = el("div", "card");
   root.dataset.id = cardData.id;
   root.dataset.value = cardData.value;
+
   const inner = el("div", "card-inner");
   const face = el("div", "face", cardData.value);
-  const back = el("div", "back", "FLIP");
+
+  const back = el("div", "back");
+  const brand = el("div", "back-label", "Flipop"); // <<< tambahkan ini
+  back.appendChild(brand); // <<< dan ini
+
   inner.append(face, back);
   root.append(inner);
   root.addEventListener("click", () => onFlip(root));
   root.style.animationDelay = `${idx * 45}ms`;
   return root;
 }
+
 function renderBoard() {
   boardEl.querySelectorAll(".card").forEach((c) => c.remove());
   state.deck.forEach((cardData, idx) => {
     const card = createCardElement(cardData, idx);
     boardEl.insertBefore(card, prestartEl);
   });
+  setGridCols(); // fix: pastikan grid sesuai total kartu
+  fitBoardToViewport();
 }
 function flipAll(open) {
   boardEl.querySelectorAll(".card").forEach((card) => {
     card.classList.toggle("flipped", open);
   });
 }
+
+// ====== Auto scale Board agar tidak overflow 100vh ======
+function fitBoardToViewport() {
+  // Ukur tinggi NYATA header/footer (bukan asumsi var --header-h) supaya tidak muncul scroll di desktop
+  const header = document.querySelector("header");
+  const footer = document.querySelector("footer");
+
+  const headerH = header ? header.offsetHeight : 64;
+  const footerH = footer ? footer.offsetHeight : 36;
+
+  // Ruang yang benar-benar tersedia
+  const verticalPadding = 16; // buffer kecil
+  const availH = window.innerHeight - headerH - footerH - verticalPadding;
+
+  // Sementara reset transform untuk dapat ukuran asli
+  const prevTransform = boardEl.style.transform;
+  boardEl.style.transform = "scale(1)";
+
+  // Pastikan kolom sudah sesuai lebar layar sebelum hitung skala
+  setGridCols();
+
+  // Hitung ukuran alami board
+  const rect = boardEl.getBoundingClientRect();
+
+  // Perhitungkan lebar container juga supaya tidak “geser kanan”
+  const wrapW = boardWrapEl.clientWidth || window.innerWidth;
+  const availW = wrapW - 12; // buffer
+
+  const scaleH = rect.height > 0 ? Math.min(1, availH / rect.height) : 1;
+  const scaleW = rect.width > 0 ? Math.min(1, availW / rect.width) : 1;
+  const scale = Math.max(0.5, Math.min(scaleH, scaleW)); // jangan terlalu kecil
+
+  boardEl.style.transform = `scale(${scale})`;
+  boardEl.style.transformOrigin = "top center";
+
+  // Jika sebelumnya ada transform lain, abaikan saja—kita ganti penuh
+  void prevTransform; // no-op supaya linter senang
+}
+
+window.addEventListener("resize", () => {
+  setGridCols();
+  fitBoardToViewport();
+});
 
 // ====== Game Flow ======
 function openDiff() {
@@ -390,9 +487,9 @@ function closeDiff() {
 }
 
 function startGame(pairs) {
-  statsEl.classList.remove("hidden-on-start");
   welcomeEl.style.display = "none";
   boardEl.style.display = "grid";
+  statsEl.style.display = "flex"; // <== tampilkan HUD
   state.difficulty.pairs = pairs;
   state.matchedCount = 0;
   state.moves = 0;
@@ -416,7 +513,6 @@ function startGame(pairs) {
 
   buildDeck();
   renderBoard();
-  setGridCols();
 
   // fase awal: flip open (preview modal kita sendiri)
   flipAll(true);
@@ -433,6 +529,7 @@ function startGame(pairs) {
     state.players.turnIndex = 0;
   }
   updateHudPlayers();
+  fitBoardToViewport();
 }
 
 function startCountdown() {
@@ -459,13 +556,10 @@ function startCountdown() {
 }
 
 function startPreview10ThenCountdown() {
-  // Paksa semua terbuka 10 detik, lalu tutup & mulai countdown
   state.gamePhase = "preview";
   prestartEl.style.display = "none";
   countdownEl.style.display = "grid";
   countdownEl.textContent = "Lihat kartu (10s)";
-
-  // >>> Non-blur saat lihat kartu:
   countdownEl.classList.add("preview-clear");
 
   flipAll(true);
@@ -479,10 +573,8 @@ function startPreview10ThenCountdown() {
       clearInterval(iv);
       flipAll(false);
       setTimeout(() => {
-        // Kembalikan gaya countdown normal sebelum hitung mundur 3..2..1
         countdownEl.classList.remove("preview-clear");
         countdownEl.style.display = "none";
-        // langsung ke countdown 3..2..1.. Mulai
         startCountdown();
       }, 400);
     }
@@ -548,7 +640,6 @@ function checkPair() {
     }, 520);
   }
 }
-
 function resetSelection() {
   state.firstPick = null;
   state.secondPick = null;
@@ -672,39 +763,35 @@ function showWin() {
       wrap.id = "win";
       const panel = el("div", "panel");
       panel.innerHTML = `
-        <div class="big">Kamu Menang! 🎉</div>
-        <p class="sub">Selesai dalam <b><span id="finalTime">00:00</span></b> dengan <b><span id="finalMoves">0</span></b> langkah.</p>
-        <div style="display:flex; gap:10px; justify-content:center;">
-          <button class="btn primary" id="btnMainLagi">Main Lagi</button>
-          <button class="btn ghost" id="btnGanti"><span>Ganti Kesulitan</span></button>
-        </div>
-      `;
+          <div class="big">Kamu Menang! 🎉</div>
+          <p class="sub">Selesai dalam <b><span id="finalTime">00:00</span></b> dengan <b><span id="finalMoves">0</span></b> langkah.</p>
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <button class="btn primary" id="btnMainLagi">Main Lagi</button>
+            <button class="btn ghost" id="btnGanti"><span>Ganti Kesulitan</span></button>
+          </div>
+        `;
       wrap.appendChild(panel);
       document.body.appendChild(wrap);
       return wrap;
     })();
 
-  // waktu yang ditampilkan = waktu yang DIHABISKAN (elapsed)
   const elapsed =
     state.timer.dir === "up"
       ? state.timer.sec
-      : state.timeTrial.limitSec - state.timer.sec;
-
+      : Math.max(0, state.timeTrial.limitSec - state.timer.sec);
   document.getElementById("finalMoves").textContent = state.moves;
   document.getElementById("finalTime").textContent = fmtMMSS(elapsed);
   winEl.style.display = "grid";
 
-  // PASANG LISTENER DULU
   winEl.querySelector("#btnMainLagi").onclick = () => {
     closeWin();
     startGame(state.difficulty.pairs);
   };
   winEl.querySelector("#btnGanti").onclick = () => {
     closeWin();
+    statsEl.style.display = "none"; // sembunyikan HUD
     openDiff();
   };
-
-  // Efek & simpan hasil
   burstConfetti();
   if (state.mode === "timetrial") state.timeTrial.result = "menang";
   saveResult();
@@ -719,17 +806,17 @@ function showLose() {
   const loseEl =
     document.querySelector(".lose") ||
     (() => {
-      const wrap = el("div", "win lose"); // pakai style win
+      const wrap = el("div", "win lose");
       wrap.id = "lose";
       const panel = el("div", "panel");
       panel.innerHTML = `
-        <div class="big">Waktu Habis ⏱️</div>
-        <p class="sub">Coba lagi ya. Kamu menemukan <b>${state.matchedCount}</b> dari <b>${state.difficulty.pairs}</b> pasangan.</p>
-        <div style="display:flex; gap:10px; justify-content:center;">
-          <button class="btn primary" id="btnCobaLagi">Coba Lagi</button>
-          <button class="btn ghost" id="btnGantiDiff">Ganti Pilihan</button>
-        </div>
-      `;
+          <div class="big">Waktu Habis ⏱️</div>
+          <p class="sub">Coba lagi ya. Kamu menemukan <b>${state.matchedCount}</b> dari <b>${state.difficulty.pairs}</b> pasangan.</p>
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <button class="btn primary" id="btnCobaLagi">Coba Lagi</button>
+            <button class="btn ghost" id="btnGantiDiff">Ganti Pilihan</button>
+          </div>
+        `;
       wrap.appendChild(panel);
       document.body.appendChild(wrap);
       return wrap;
@@ -742,8 +829,10 @@ function showLose() {
   };
   loseEl.querySelector("#btnGantiDiff").onclick = () => {
     closeLose();
+    statsEl.style.display = "none"; // sembunyikan HUD
     openDiff();
   };
+
   state.timeTrial.result = "waktu_habis";
   saveResult();
 }
@@ -755,20 +844,30 @@ function closeLose() {
 // ====== Name Modal & Difficulty ======
 function openNameModal() {
   nameFields.innerHTML = "";
+  const defaultName = localStorage.getItem("flipop-username") || "Pemain";
   if (state.mode === "duel") {
     nameFields.append(
-      inputRow("Nama Player 1", "P1", "nameP1"),
+      inputRow("Nama Player 1", defaultName || "P1", "nameP1"),
       inputRow("Nama Player 2", "P2", "nameP2")
     );
   } else {
-    nameFields.append(inputRow("Nama Player", "Pemain", "nameSolo"));
+    nameFields.append(
+      inputRow("Nama Player", defaultName || "Pemain", "nameSolo")
+    );
   }
   modalName.style.display = "grid";
+  // Prefill state
+  if (state.mode === "duel") {
+    state.players.p1.name = defaultName;
+  } else {
+    state.players.p1.name = defaultName;
+  }
 }
 function inputRow(label, placeholder, id) {
   const wrap = el("div", "");
   const input = el("input", "");
   input.placeholder = placeholder;
+  input.value = placeholder; // isi awal dengan placeholder (defaultName)
   input.id = id;
   input.required = true;
   const lbl = el("label", "", label);
@@ -778,11 +877,9 @@ function inputRow(label, placeholder, id) {
   wrap.append(lbl, input);
   return wrap;
 }
-btnNamaBatal.addEventListener(
-  "click",
-  () => (modalName.style.display = "none")
-);
-
+document
+  .getElementById("btnNamaBatal")
+  ?.addEventListener("click", () => (modalName.style.display = "none"));
 btnNamaOK.addEventListener("click", () => {
   if (state.mode === "duel") {
     const n1 = document.getElementById("nameP1").value.trim() || "P1";
@@ -790,7 +887,6 @@ btnNamaOK.addEventListener("click", () => {
     state.players.p1.name = n1;
     state.players.p2.name = n2;
   } else {
-    // solo & timetrial
     const n = document.getElementById("nameSolo").value.trim() || "Pemain";
     state.players.p1.name = n;
     state.players.p2.name = ""; // not used
@@ -799,7 +895,7 @@ btnNamaOK.addEventListener("click", () => {
   openDiff(); // akan memanggil setupTimeTrialUI() juga
 });
 
-// Build pilihan kesulitan (juga dipanggil ulang di openDiff)
+// Build pilihan kesulitan (awal)
 DIFFICULTIES.forEach((d) => {
   const row = el("div", "choice");
   const left = el("div", "", d.label);
@@ -860,7 +956,6 @@ function setupTimeTrialUI() {
     timeRow.style.display = "none";
   }
 }
-
 function updateTimeTrialHint(hintEl) {
   if (!hintEl) return;
   const pairs = state.difficulty?.pairs ?? 4;
@@ -881,22 +976,22 @@ window.addEventListener("keydown", (e) => {
 
 // ====== Save / Load (API) ======
 async function fetchData() {
-  const res = await fetch("card-system.php?action=getData", {
-    cache: "no-store",
-  });
-  const json = await res.json();
-  if (json.ok) {
-    state.dataCache.history = json.history || [];
-    state.dataCache.leaderboard = json.leaderboard || { solo: {}, duel: {} };
+  try {
+    const res = await fetch(`${API_URL}?action=getData`, { cache: "no-store" });
+    const json = await res.json();
+    if (json?.ok) {
+      state.dataCache.history = Array.isArray(json.history) ? json.history : [];
+      state.dataCache.leaderboard = json.leaderboard || { solo: {}, duel: {} };
+    }
+  } catch (err) {
+    console.error("Fetch data failed", err);
   }
 }
 async function saveResult() {
-  // waktu tercatat:
   const elapsed =
     state.timer.dir === "up"
       ? state.timer.sec
-      : state.timeTrial.limitSec - state.timer.sec;
-
+      : Math.max(0, state.timeTrial.limitSec - state.timer.sec);
   const payload = {
     mode: state.mode,
     difficulty: state.difficulty.key,
@@ -908,7 +1003,7 @@ async function saveResult() {
   if (state.mode === "solo" || state.mode === "timetrial") {
     const diffFactor = DIFF_FACTOR[state.difficulty.key] || 1;
     const eff = state.difficulty.pairs / Math.max(1, state.moves);
-    const spd = (state.difficulty.pairs * 10) / Math.max(5, elapsed);
+    const spd = (state.difficulty.pairs * 10) / Math.max(5, elapsed || 1);
     const score = Math.round(1000 * diffFactor * eff * spd);
     payload.player = state.players.p1.name || "Pemain";
     payload.score = score;
@@ -925,13 +1020,13 @@ async function saveResult() {
   }
 
   try {
-    const res = await fetch("card-system.php?action=saveResult", {
+    const res = await fetch(`${API_URL}?action=saveResult`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     const json = await res.json();
-    if (json.ok) await fetchData();
+    if (json?.ok) await fetchData();
   } catch (e) {
     console.error("Save result failed", e);
   }
@@ -946,21 +1041,21 @@ async function openHistory() {
 function renderHistoryTable() {
   const rows = state.dataCache.history.slice().reverse(); // terbaru di atas
   const th = `
-    <tr>
-      <th>Tanggal</th>
-      <th>Mode</th>
-      <th>Kesulitan</th>
-      <th>Pemain</th>
-      <th>Langkah</th>
-      <th>Waktu</th>
-      <th>Skor / Detail</th>
-    </tr>`;
+        <tr>
+          <th>Tanggal</th>
+          <th>Mode</th>
+          <th>Kesulitan</th>
+          <th>Pemain</th>
+          <th>Langkah</th>
+          <th>Waktu</th>
+          <th>Skor / Detail</th>
+        </tr>`;
   const tdRows = rows
     .map((r) => {
       const when = r.date || "";
-      const mode = r.mode;
-      const diff = r.difficulty;
-      const moves = r.moves;
+      const mode = r.mode || "-";
+      const diff = r.difficulty || "-";
+      const moves = r.moves ?? 0;
       const time = fmtMMSS(r.time_sec || 0);
       let playerCol = "";
       let scoreCol = "";
@@ -977,16 +1072,19 @@ function renderHistoryTable() {
         scoreCol = `Time Trial: ${r.result || "-"}${lim} • Skor ${
           r.score ?? 0
         }`;
+      } else {
+        playerCol = "-";
+        scoreCol = "-";
       }
       return `<tr>
-      <td>${when}</td>
-      <td>${mode}</td>
-      <td>${diff}</td>
-      <td>${playerCol}</td>
-      <td>${moves}</td>
-      <td>${time}</td>
-      <td>${scoreCol}</td>
-    </tr>`;
+          <td>${when}</td>
+          <td>${mode}</td>
+          <td>${diff}</td>
+          <td>${playerCol}</td>
+          <td>${moves}</td>
+          <td>${time}</td>
+          <td>${scoreCol}</td>
+        </tr>`;
     })
     .join("");
   tblHistory.innerHTML = th + tdRows;
@@ -1013,55 +1111,55 @@ function renderLeaderboardTable() {
 
   if (mode === "solo") {
     const th = `
-      <tr>
-        <th>#</th>
-        <th>Pemain</th>
-        <th>Skor</th>
-        <th>Langkah</th>
-        <th>Waktu</th>
-        <th>Tanggal</th>
-      </tr>`;
+          <tr>
+            <th>#</th>
+            <th>Pemain</th>
+            <th>Skor</th>
+            <th>Langkah</th>
+            <th>Waktu</th>
+            <th>Tanggal</th>
+          </tr>`;
     const rows = lb
       .map(
         (r, i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${r.player}</td>
-        <td>${r.score}</td>
-        <td>${r.moves}</td>
-        <td>${fmtMMSS(r.time_sec)}</td>
-        <td>${r.date}</td>
-      </tr>
-    `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${r.player}</td>
+            <td>${r.score}</td>
+            <td>${r.moves}</td>
+            <td>${fmtMMSS(r.time_sec)}</td>
+            <td>${r.date}</td>
+          </tr>
+        `
       )
       .join("");
     tblLb.innerHTML = th + rows;
   } else {
     const th = `
-      <tr>
-        <th>#</th>
-        <th>Player 1</th>
-        <th>Player 2</th>
-        <th>Pemenang</th>
-        <th>Margin</th>
-        <th>Langkah</th>
-        <th>Waktu</th>
-        <th>Tanggal</th>
-      </tr>`;
+          <tr>
+            <th>#</th>
+            <th>Player 1</th>
+            <th>Player 2</th>
+            <th>Pemenang</th>
+            <th>Margin</th>
+            <th>Langkah</th>
+            <th>Waktu</th>
+            <th>Tanggal</th>
+          </tr>`;
     const rows = lb
       .map(
         (r, i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${r.player1}</td>
-        <td>${r.player2}</td>
-        <td>${r.winner}</td>
-        <td>${r.winner_margin}</td>
-        <td>${r.moves}</td>
-        <td>${fmtMMSS(r.time_sec)}</td>
-        <td>${r.date}</td>
-      </tr>
-    `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${r.player1}</td>
+            <td>${r.player2}</td>
+            <td>${r.winner}</td>
+            <td>${r.winner_margin}</td>
+            <td>${r.moves}</td>
+            <td>${fmtMMSS(r.time_sec)}</td>
+            <td>${r.date}</td>
+          </tr>
+        `
       )
       .join("");
     tblLb.innerHTML = th + rows;
@@ -1070,3 +1168,80 @@ function renderLeaderboardTable() {
 
 // Init HUD (welcome screen)
 updateHudPlayers();
+
+// ====== SPLASH → FORM → HELLO ======
+function show(el) {
+  el.classList.add("show");
+  el.classList.remove("fade-out");
+}
+function hide(el) {
+  el.classList.add("fade-out");
+  setTimeout(() => {
+    el.classList.remove("show");
+  }, 250);
+}
+
+function firstRunFlow() {
+  const savedName = localStorage.getItem("flipop-username");
+  if (!savedName) {
+    // Tampilkan splash
+    show(overlaySplash);
+
+    // Klik di mana saja → ke form
+    const toForm = () => {
+      hide(overlaySplash);
+      setTimeout(() => show(overlayNameFirst), 260);
+      window.removeEventListener("click", toForm);
+    };
+    // gunakan setTimeout agar tidak trigger langsung saat page load
+    setTimeout(() => {
+      window.addEventListener("click", toForm, { once: true });
+    }, 100);
+
+    // Form tombol
+    firstNameCancel.addEventListener(
+      "click",
+      () => {
+        hide(overlayNameFirst);
+      },
+      { once: true }
+    );
+    firstNameOK.addEventListener(
+      "click",
+      () => {
+        const name = (firstNameInput.value || "").trim() || "Pemain";
+        localStorage.setItem("flipop-username", name);
+
+        // Isi Player 1 saat ini juga
+        state.players.p1.name = name;
+        updateHudPlayers();
+
+        hide(overlayNameFirst);
+        // Tampilkan salam
+        setTimeout(() => {
+          helloText.textContent = `Selamat datang, ${name}!`;
+          show(overlayHello);
+
+          // Auto hilang setelah animasi + buffer
+          setTimeout(() => {
+            hide(overlayHello);
+          }, 1600);
+
+          // Bisa di-close dengan klik
+          const closeHello = () => hide(overlayHello);
+          setTimeout(() => {
+            overlayHello.addEventListener("click", closeHello, { once: true });
+          }, 250);
+        }, 260);
+      },
+      { once: true }
+    );
+  } else {
+    // Sudah punya nama, set langsung
+    state.players.p1.name = savedName;
+    updateHudPlayers();
+  }
+}
+firstRunFlow();
+
+// ====== Theme persist already handled ======

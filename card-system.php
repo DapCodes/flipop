@@ -76,7 +76,7 @@ if (isset($_GET['action'])) {
       exit;
     }
 
-    $mode = $data['mode']; // 'solo' | 'duel'
+    $mode = $data['mode']; // 'solo' | 'duel' | 'timetrial'
     $difficulty = $data['difficulty']; // 'mudah' | 'sedang' | 'sulit'
     $date = date('Y-m-d H:i:s');
 
@@ -106,7 +106,7 @@ if (isset($_GET['action'])) {
         'date' => $date,
       ];
       sort_leaderboard_solo($_SESSION['leaderboard']['solo'][$difficulty]);
-    } else if ($mode == 'duel') { // duel
+    } else if ($mode === 'duel') { // duel
       // player1, player2, score1, score2
       $p1 = $data['player1'] ?? 'P1';
       $p2 = $data['player2'] ?? 'P2';
@@ -171,22 +171,28 @@ if (isset($_GET['action'])) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Flipop — Memory Card Flip</title>
-  <link rel="stylesheet" href="asset/css/style.css" />
+  <!-- <link rel="stylesheet" href="asset/css/style.css" /> -->
+   <link rel="shortcut icon" href="asset/img/logo-small.svg" type="image/x-icon">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="wrap">
     <header>
       <div class="brand">
-        <div class="brand-badge">F</div>
+        <!-- <div class="brand-badge">F</div> -->
+        <img src="asset/img/logo-small.svg" alt="" srcset="" class="logo">
         <div>Flipop</div>
       </div>
-      <div class="stats hidden-on-start" id="stats">
-        <div class="hud-players" id="hudPlayers">
-          <!-- Dinamis: avatar inisial + nama + skor + highlight turn -->
-        </div>
-        <div class="stat">Langkah: <span id="moves">0</span></div>
-        <div class="stat">Waktu: <span id="time">00:00</span></div>
+      <div class="stats">
+        <div id="stats">
+          <div class="hud-players" id="hudPlayers">
+            <!-- Dinamis: avatar inisial + nama + skor + highlight turn -->
+          </div>
+          <div class="stat">Langkah: <span id="moves">0</span></div>
+          <div class="stat">Waktu: <span id="time">00:00</span></div>
         <button class="btn small ghost" id="btnRestart" title="Mulai ulang">↻ Mulai Ulang</button>
+        </div>
         <button class="btn small ghost" id="btnHistory" title="Riwayat">🕘 Riwayat</button>
         <button class="btn small ghost" id="btnLeaderboard" title="Papan Peringkat">🏆 Peringkat</button>
         <button class="btn small ghost" id="btnTheme" title="Tema">☀️/🌙</button>
@@ -195,7 +201,7 @@ if (isset($_GET['action'])) {
 
     <main>
       <section class="welcome" id="welcome">
-        <h1>Selamat Datang di <span class="accent">Flipop</span> 🃏</h1>
+        <h1>Selamat Datang di <span class="accent"> Flipop</span></h1> 
         <p>Balik dan cocokkan pasangan kartu secepat mungkin.</p>
         <p><small>Latihan: array shuffle, game loop, animasi CSS/JS.</small></p>
 
@@ -224,19 +230,53 @@ if (isset($_GET['action'])) {
         </div>
       </section>
 
-      <section class="board cols-4" id="board" aria-label="Papan Kartu" style="display:none">
-        <div class="prestart" id="prestart">
-          <div class="panel">
-            <div style="font-weight:800; font-size:18px">Siap menghafal posisi kartu?</div>
-            <button class="btn primary" id="btnPrestart">Mulai</button>
-            <div class="hint">Setelah klik, akan ada hitung mundur 3…2…1 lalu kartu tertutup.</div>
+      <div class="board-wrap board-safe-padding">
+        <section class="board cols-4" id="board" aria-label="Papan Kartu" style="display:none">
+          <div class="prestart" id="prestart">
+            <div class="panel">
+              <div style="font-weight:800; font-size:18px">Siap menghafal posisi kartu?</div>
+              <button class="btn primary" id="btnPrestart">Mulai</button>
+              <div class="hint">Setelah klik, akan ada hitung mundur 3…2…1 lalu kartu tertutup.</div>
+            </div>
           </div>
-        </div>
-        <div class="countdown" id="countdown">3</div>
-      </section>
+          <div class="countdown" id="countdown">3</div>
+        </section>
+      </div>
     </main>
 
     <footer>© 2025 Flipop – dibuat untuk latihan logika & animasi</footer>
+  </div>
+
+  <!-- Overlay: Splash Sapaan -->
+  <div class="overlay" id="overlaySplash" role="dialog" aria-modal="true">
+    <div class="splash-card">
+      <h2 class="splash-title">Selamat datang di <span class="accent">Flipop</span> 👋</h2>
+      <p class="splash-sub">Game mengasah memori: balik kartu & cocokkan pasangannya.</p>
+      <p class="tap-anywhere">Klik di mana saja untuk lanjut</p>
+    </div>
+  </div>
+
+  <!-- Overlay: Form Nama Awal -->
+  <div class="overlay" id="overlayNameFirst" role="dialog" aria-modal="true" aria-labelledby="firstNameTitle">
+    <div class="modal" style="max-width:520px">
+      <h3 id="firstNameTitle" class="modal-title">Masukkan Nama Anda</h3>
+      <div class="name-fields">
+        <label style="font-weight:700; display:block; margin-bottom:6px">Nama</label>
+        <input type="text" id="firstNameInput" placeholder="Nama Anda" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn ghost" id="firstNameCancel">Tutup</button>
+        <button class="btn primary" id="firstNameOK">Oke</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay: Salam “Selamat datang, {nama}” -->
+  <div class="overlay" id="overlayHello">
+    <div class="hello-card">
+      <div class="hello-text" id="helloText">Selamat datang!</div>
+      <div class="tap-anywhere">Klik di mana saja untuk mulai</div>
+    </div>
   </div>
 
   <!-- Modal: Pilih Kesulitan -->
@@ -277,7 +317,7 @@ if (isset($_GET['action'])) {
     </div>
   </div>
 
-  <!-- Modal: Input Nama -->
+  <!-- Modal: Input Nama (sebelum main / duel) -->
   <div class="modal-backdrop" id="modalName" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
     <div class="modal">
       <h3 id="nameTitle" class="modal-title">Masukkan Nama</h3>
@@ -323,6 +363,7 @@ if (isset($_GET['action'])) {
       </div>
     </div>
   </div>
+
   <div class="confetti" id="confetti" aria-hidden="true"></div>
 
   <script src="js/script.js"></script>
