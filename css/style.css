@@ -1696,3 +1696,16 @@ main {
 .board {
     padding-bottom: 8px;
 }
+
+.card-inner {
+    border: 1px solid var(--ring) !important;
+    /* garis halus */
+}
+
+.face {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+:root.dark .face {
+    text-shadow: 0 2px 5px rgba(255, 255, 255, 0.15);
+}
