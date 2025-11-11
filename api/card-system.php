@@ -203,7 +203,9 @@ header('Content-Type: text/html; charset=utf-8');
         </div>
         <button class="btn small ghost" id="btnHistory" title="Riwayat">🕘 Riwayat</button>
         <button class="btn small ghost" id="btnLeaderboard" title="Papan Peringkat">🏆 Peringkat</button>
-        <button class="btn small ghost" id="btnTheme" title="Tema">☀️/🌙</button>
+        <button class="btn small ghost" id="btnTheme" title="Tema" aria-label="Ganti tema">
+          <span id="themeIcon" aria-hidden="true">☀️</span>
+        </button>
       </div>
     </header>
 
@@ -232,7 +234,7 @@ header('Content-Type: text/html; charset=utf-8');
         </div>
 
         <div class="welcome-actions">
-          <button class="btn primary" id="btnMulai">Mulai</button>
+          <button hidden class="btn primary" id="btnMulai">Mulai</button>
           <button class="btn ghost" id="btnCara">Cara Main</button>
         </div>
       </section>
@@ -315,7 +317,10 @@ header('Content-Type: text/html; charset=utf-8');
 
       <div class="choices" id="choices"></div>
       <div class="modal-actions">
-        <button class="btn ghost" id="btnBatal">Batal</button>
+        <button class="btn ghost" id="btnBatal" hidden>Batal</button>
+        <button class="btn ghost" id="btnMenu" >Batal</button>
+
+        
       </div>
     </div>
   </div>

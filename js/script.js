@@ -393,14 +393,43 @@ const state = {
 // ====== Theme ======
 (function initTheme() {
   const saved = localStorage.getItem("flipop-theme");
-  if (saved === "dark") document.documentElement.classList.add("dark");
+  const prefersDark =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  // Tentukan initial mode
+  const isDark = saved ? saved === "dark" : prefersDark;
+  document.documentElement.classList.toggle("dark", isDark);
+
+  updateThemeIcon(); // set ikon awal sesuai mode
 })();
+
+function updateThemeIcon() {
+  const isDark = document.documentElement.classList.contains("dark");
+  const btn = document.getElementById("btnTheme");
+  const icon = document.getElementById("themeIcon");
+  const symbol = isDark ? "🌙" : "☀️";
+  if (icon) icon.textContent = symbol;
+  else if (btn) btn.textContent = symbol; // fallback kalau span tidak dipakai
+
+  // aksesibilitas & tooltip
+  if (btn) {
+    btn.setAttribute(
+      "aria-label",
+      isDark ? "Ganti ke tema terang" : "Ganti ke tema gelap"
+    );
+    btn.title = isDark
+      ? "Tema: Gelap (klik untuk Terang)"
+      : "Tema: Terang (klik untuk Gelap)";
+  }
+}
+
 function toggleTheme() {
-  document.documentElement.classList.toggle("dark");
-  localStorage.setItem(
-    "flipop-theme",
-    document.documentElement.classList.contains("dark") ? "dark" : "light"
-  );
+  const root = document.documentElement;
+  const newIsDark = !root.classList.contains("dark");
+  root.classList.toggle("dark", newIsDark);
+  localStorage.setItem("flipop-theme", newIsDark ? "dark" : "light");
+  updateThemeIcon(); // sinkronkan ikon setelah toggle
 }
 
 function setGridCols() {
