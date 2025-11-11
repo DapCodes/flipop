@@ -295,6 +295,14 @@ function closeHowTo() {
   });
 })();
 
+// taruh sekali saja (mis. di bawah binding tombol header)
+document.body.addEventListener("click", (e) => {
+  const id = e.target?.id;
+  if (id === "btnMenu" || id === "btnKeMenu") {
+    goToMenu();
+  }
+});
+
 document.getElementById("btnMulai").addEventListener("click", () => {
   if (!state.mode) state.mode = "solo";
   openNameModal();
@@ -843,6 +851,20 @@ function burstConfetti() {
   setTimeout(() => (confetti.innerHTML = ""), 7000);
 }
 function showWin() {
+  // Tentukan judul besar (bigTitle) tergantung mode
+  let bigTitle = "Kamu Menang! 🎉";
+  if (state.mode === "duel") {
+    const s1 = state.players.p1.score || 0;
+    const s2 = state.players.p2.score || 0;
+    if (s1 === s2) {
+      bigTitle = "Seri! 🤝";
+    } else {
+      const winnerName =
+        (s1 > s2 ? state.players.p1.name : state.players.p2.name) || "Pemenang";
+      bigTitle = `${winnerName} Menang! 🎉`;
+    }
+  }
+
   const winEl =
     document.querySelector(".win") ||
     (() => {
@@ -850,39 +872,52 @@ function showWin() {
       wrap.id = "win";
       const panel = el("div", "panel");
       panel.innerHTML = `
-          <div class="big">Kamu Menang! 🎉</div>
-          <p class="sub">Selesai dalam <b><span id="finalTime">00:00</span></b> dengan <b><span id="finalMoves">0</span></b> langkah.</p>
-          <div style="display:flex; gap:10px; justify-content:center;">
-            <button class="btn primary" id="btnMainLagi">Main Lagi</button>
-            <button class="btn ghost" id="btnGanti"><span>Ganti Kesulitan</span></button>
-          </div>
-        `;
+        <div class="big" id="winTitle">Kamu Menang! 🎉</div>
+        <p class="sub">Selesai dalam <b><span id="finalTime">00:00</span></b> dengan <b><span id="finalMoves">0</span></b> langkah.</p>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn primary" id="btnMainLagi">Main Lagi</button>
+          <button class="btn ghost" id="btnGanti">Ganti Kesulitan</button>
+          <button class="btn ghost" id="btnMenu">Menu</button>
+        </div>
+      `;
       wrap.appendChild(panel);
       document.body.appendChild(wrap);
       return wrap;
     })();
 
+  // Update judul sesuai mode/hasil
+  const titleEl = document.getElementById("winTitle");
+  if (titleEl) titleEl.textContent = bigTitle;
+
+  // Hitung waktu selesai
   const elapsed =
     state.timer.dir === "up"
       ? state.timer.sec
       : Math.max(0, state.timeTrial.limitSec - state.timer.sec);
+
   document.getElementById("finalMoves").textContent = state.moves;
   document.getElementById("finalTime").textContent = fmtMMSS(elapsed);
   winEl.style.display = "grid";
 
+  // Aksi tombol
   winEl.querySelector("#btnMainLagi").onclick = () => {
     closeWin();
     startGame(state.difficulty.pairs);
   };
   winEl.querySelector("#btnGanti").onclick = () => {
     closeWin();
-    statsEl.style.display = "none"; // sembunyikan HUD
+    statsEl.style.display = "none";
     openDiff();
   };
+  // winEl.querySelector("#btnMenu").onclick = goToMenu;
+
   burstConfetti();
+
+  // Simpan hasil (logika score & winner duel sudah ditangani di saveResult())
   if (state.mode === "timetrial") state.timeTrial.result = "menang";
   saveResult();
 }
+
 function closeWin() {
   const winEl = document.getElementById("win");
   if (winEl) winEl.style.display = "none";
@@ -899,9 +934,10 @@ function showLose() {
       panel.innerHTML = `
           <div class="big">Waktu Habis ⏱️</div>
           <p class="sub">Coba lagi ya. Kamu menemukan <b>${state.matchedCount}</b> dari <b>${state.difficulty.pairs}</b> pasangan.</p>
-          <div style="display:flex; gap:10px; justify-content:center;">
+          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
             <button class="btn primary" id="btnCobaLagi">Coba Lagi</button>
             <button class="btn ghost" id="btnGantiDiff">Ganti Pilihan</button>
+            <button class="btn ghost" id="btnKeMenu">Menu</button>
           </div>
         `;
       wrap.appendChild(panel);
@@ -910,22 +946,85 @@ function showLose() {
     })();
 
   loseEl.style.display = "grid";
+
+  // Tombol aksi
   loseEl.querySelector("#btnCobaLagi").onclick = () => {
     closeLose();
     startGame(state.difficulty.pairs);
   };
   loseEl.querySelector("#btnGantiDiff").onclick = () => {
     closeLose();
-    statsEl.style.display = "none"; // sembunyikan HUD
+    statsEl.style.display = "none";
     openDiff();
   };
+
+  // ✅ Tambahkan baris ini
+  // loseEl.querySelector("#btnKeMenu").onclick = goToMenu;
 
   state.timeTrial.result = "waktu_habis";
   saveResult();
 }
-function closeLose() {
-  const elx = document.getElementById("lose");
-  if (elx) elx.style.display = "none";
+
+function clearBoard() {
+  // hapus semua kartu, sisakan elemen overlay bawaan (#prestart, #countdown)
+  boardEl.querySelectorAll(".card").forEach((c) => c.remove());
+  boardEl.classList.remove("locked");
+  boardEl.style.transform = "scale(1)";
+  boardEl.style.marginTop = "";
+  boardWrapEl.style.height = ""; // balikin tinggi wrapper
+}
+
+function clearBoard() {
+  boardEl.querySelectorAll(".card").forEach((c) => c.remove());
+  boardEl.classList.remove("locked");
+  boardEl.style.transform = "scale(1)";
+  boardEl.style.marginTop = "";
+  boardWrapEl.style.height = "";
+}
+
+function hideEl(el) {
+  if (el) el.style.display = "none";
+}
+
+function goToMenu() {
+  // Tutup semua modal/overlay yang mungkin aktif
+  hideEl(document.getElementById("win"));
+  hideEl(document.getElementById("lose"));
+  hideEl(modalDiff);
+  hideEl(modalName);
+  hideEl(modalHistory);
+  hideEl(modalLb);
+  hideEl(overlaySplash);
+  hideEl(overlayHello);
+  hideEl(overlayNameFirst);
+  hideEl(prestartEl);
+  hideEl(countdownEl);
+
+  // Matikan timer dan reset HUD
+  stopTimer(true);
+  movesEl.textContent = "0";
+  timeEl.textContent = fmtMMSS(0);
+
+  // Bersihkan papan & state permainan
+  clearBoard();
+  state.deck = [];
+  state.firstPick = null;
+  state.secondPick = null;
+  state.matchedCount = 0;
+  state.moves = 0;
+  state.timer.running = false;
+  state.timer.int = null;
+  state.timer.dir = "up";
+  state.timer.sec = 0;
+  state.players.p1.score = 0;
+  state.players.p2.score = 0;
+  state.players.turnIndex = 0;
+  state.gamePhase = "idle";
+
+  // Kembali ke menu utama
+  statsEl.style.display = "none";
+  boardEl.style.display = "none";
+  welcomeEl.style.display = "grid";
 }
 
 // ====== Name Modal & Difficulty ======

@@ -251,7 +251,7 @@ header('Content-Type: text/html; charset=utf-8');
       </div>
     </main>
 
-    <footer>© 2025 Flipop – dibuat untuk latihan logika & animasi</footer>
+    <!-- <footer>© 2025 Flipop – dibuat untuk latihan logika & animasi</footer> -->
   </div>
 
   <!-- Overlays & Modals -->
