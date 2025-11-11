@@ -448,6 +448,21 @@ header('Content-Type: text/html; charset=utf-8');
   </div>
 </div>
 
+<!-- Modal Konfirmasi Refresh -->
+<div class="modal-backdrop" id="modalRefresh" role="dialog" aria-modal="true" aria-labelledby="refreshTitle" style="display:none">
+  <div class="modal" style="max-width:520px">
+    <h3 id="refreshTitle" class="modal-title">Muat Ulang Halaman?</h3>
+    <p style="opacity:.85; margin:6px 0 12px">
+      Kamu akan me-refresh halaman. Progres sesi saat ini bisa hilang. Lanjut?
+    </p>
+    <div class="modal-actions">
+      <button class="btn ghost" id="btnRefreshCancel">Batal</button>
+      <button class="btn primary" id="btnRefreshNow">Refresh Sekarang</button>
+    </div>
+  </div>
+</div>
+
+
 
   <div class="confetti" id="confetti" aria-hidden="true"></div>
 

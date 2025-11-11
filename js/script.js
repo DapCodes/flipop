@@ -1440,6 +1440,103 @@ function hide(el) {
   }, 250);
 }
 
+// ====== Refresh Confirm ======
+const modalRefresh = document.getElementById("modalRefresh");
+const btnRefreshNow = document.getElementById("btnRefreshNow");
+const btnRefreshCancel = document.getElementById("btnRefreshCancel");
+
+// flag untuk mengizinkan unload tanpa prompt (saat user pilih "Refresh Sekarang")
+let __allowHardReload = false;
+
+// util: tampilkan modal kustom, balikan Promise<boolean>
+function promptRefresh() {
+  return new Promise((resolve) => {
+    // tampilkan modal
+    if (modalRefresh) modalRefresh.style.display = "grid";
+
+    // handler bersih supaya tidak dobel
+    const onCancel = () => {
+      if (modalRefresh) modalRefresh.style.display = "none";
+      cleanup();
+      resolve(false);
+    };
+    const onConfirm = () => {
+      if (modalRefresh) modalRefresh.style.display = "none";
+      cleanup();
+      __allowHardReload = true; // izinkan unload tanpa beforeunload
+      location.reload(); // eksekusi refresh
+      resolve(true);
+    };
+    const onEsc = (e) => {
+      if (e.key === "Escape") onCancel();
+    };
+
+    function cleanup() {
+      btnRefreshCancel?.removeEventListener("click", onCancel);
+      btnRefreshNow?.removeEventListener("click", onConfirm);
+      window.removeEventListener("keydown", onEsc);
+    }
+
+    btnRefreshCancel?.addEventListener("click", onCancel, { once: true });
+    btnRefreshNow?.addEventListener("click", onConfirm, { once: true });
+    window.addEventListener("keydown", onEsc);
+  });
+}
+
+// 3a) Tangkap F5 & Ctrl/Cmd+R → tampilkan modal kustom
+window.addEventListener(
+  "keydown",
+  (e) => {
+    const key = e.key?.toLowerCase();
+
+    const isF5 = key === "f5";
+    const isReloadCombo = key === "r" && (e.ctrlKey || e.metaKey);
+
+    if (isF5 || isReloadCombo) {
+      e.preventDefault();
+      e.stopPropagation();
+      // bunyi klik universalmu
+      try {
+        playSound("click");
+      } catch {}
+
+      // munculkan modal
+      promptRefresh();
+    }
+  },
+  { capture: true }
+);
+
+// 3b) beforeunload untuk kasus toolbar refresh / tutup tab / navigasi paksa
+// (browser hanya izinkan dialog native)
+window.addEventListener("beforeunload", (e) => {
+  if (__allowHardReload) return; // user sudah setuju lewat modal kustom
+  // tampilkan dialog native "Changes you made may not be saved."
+  e.preventDefault();
+  e.returnValue = ""; // Chrome/Edge/Firefox menampilkan prompt standar
+});
+
+// (opsional) kalau kamu punya tombol di UI yang seharusnya refresh penuh:
+// document.getElementById("someRefreshBtn")?.addEventListener("click", (e) => {
+//   e.preventDefault();
+//   promptRefresh();
+// });
+
+function tempDisableBeforeUnload(cb) {
+  const prev = __allowHardReload;
+  __allowHardReload = true;
+  try {
+    cb();
+  } finally {
+    __allowHardReload = prev;
+  }
+}
+
+// contoh: saat hanya reset internal (bukan reload penuh)
+document.getElementById("btnRestart")?.addEventListener("click", () => {
+  tempDisableBeforeUnload(() => startGame(state.difficulty.pairs));
+});
+
 function firstRunFlow() {
   const savedName = localStorage.getItem("flipop-username");
   if (!savedName) {

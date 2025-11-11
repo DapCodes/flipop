@@ -496,6 +496,7 @@ select:focus-visible {
     border-radius: clamp(10px, 2vw, 14px);
     transition: transform .18s ease;
     will-change: transform;
+    container-type: inline-size;
     animation: deal .5s cubic-bezier(.2, .8, .2, 1) both;
 }
 
@@ -559,14 +560,18 @@ select:focus-visible {
 
 .back-label {
     font-weight: 800;
-    font-size: clamp(14px, 3vw, 28px);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text);
-    opacity: 0.4;
+    letter-spacing: .12em;
+    opacity: .4;
     pointer-events: none;
     user-select: none;
     text-align: center;
+
+    /* skala mengikuti lebar kartu */
+    font-size: clamp(10px, 12cqi, 22px);
+    /* <= inti responsifnya */
+    line-height: 1.1;
+    white-space: nowrap;
 }
 
 
@@ -1706,4 +1711,8 @@ main {
     border: 1px solid var(--ring) !important;
     border-radius: clamp(10px, 2vw, 14px);
     box-sizing: border-box;
+}
+
+#modalRefresh .modal p {
+    line-height: 1.5;
 }
