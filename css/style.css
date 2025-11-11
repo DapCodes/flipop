@@ -17,6 +17,8 @@
     --footer-h: 36px;
 
     --font-sans: "Satoshi", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-head: "Fredoka", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 :root.dark {
@@ -54,7 +56,7 @@ html {
 body {
     min-height: 100vh;
     margin: 0;
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-body) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -63,6 +65,84 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
 }
+
+/* Heading & elemen display */
+h1,
+h2,
+h3,
+.brand,
+.big,
+.welcome h1,
+.modal-title,
+.mode-title {
+    font-family: var(--font-head);
+}
+
+/* Opsional: CTA juga pakai head biar lebih standout */
+.btn.primary {
+    font-family: var(--font-head);
+}
+
+.ff-head {
+    font-family: var(--font-head) !important;
+}
+
+.ff-body {
+    font-family: var(--font-body) !important;
+}
+
+/* ========== FONT IMPLEMENTATION ========== */
+
+/* Semua teks default pakai Nunito */
+body,
+p,
+.stat,
+.hud-player,
+.mode-sub,
+.field-row label,
+input,
+button,
+select,
+textarea {
+    font-family: var(--font-body) !important;
+}
+
+/* Heading, tombol utama, dan elemen besar pakai Fredoka */
+h1,
+h2,
+h3,
+.brand,
+.big,
+.mode-title,
+.modal-title,
+.btn,
+.back-label,
+.how-card .how-title {
+    font-family: var(--font-head) !important;
+}
+
+/* Warna otomatis sesuai tema */
+.how-card .how-title {
+    color: var(--text);
+}
+
+/* Untuk judul kartu aktif: gradien biar fun */
+.how-card.active .how-title {
+    background: linear-gradient(135deg, var(--brand-grad1), var(--brand-grad2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Opsi: tampilan 'FLIPOP' di belakang kartu lebih khas */
+.back-label {
+    font-family: var(--font-head);
+    letter-spacing: 0.15em;
+    opacity: 0.35;
+    font-size: clamp(10px, 10cqi, 20px);
+}
+
+
 
 .wrap {
     min-height: 100vh;
@@ -1078,10 +1158,30 @@ input:valid {
     font-size: 14px;
 }
 
+/* judul kartu ikut tema (warna & font) */
 .how-card .how-title {
     font-weight: 800;
     font-size: clamp(15px, 3vw, 18px);
+    color: var(--text);
+    /* ← mengikuti light/dark */
+    font-family: var(--font-head, var(--font-sans));
+    /* opsional: pakai font head */
 }
+
+/* opsional: saat kartu aktif, beri aksen brand */
+.how-card.active .how-title {
+    background: linear-gradient(135deg, var(--brand-grad1), var(--brand-grad2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* tetap works di light/dark */
+}
+
+/* opsional: subjudul ikut muted theme */
+.how-card .how-sub {
+    color: var(--muted);
+}
+
 
 .how-card .how-sub {
     color: var(--muted);
@@ -1715,4 +1815,27 @@ main {
 
 #modalRefresh .modal p {
     line-height: 1.5;
+}
+
+#btnPreviewToggle {
+    display: inline-flex;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    gap: 8px;
+    font-size: clamp(13px, 2.5vw, 15px);
+    transition: background .25s ease, color .25s ease;
+}
+
+#btnPreviewToggle i {
+    font-size: 1.1em;
+}
+
+#btnPreviewToggle.active {
+    background: linear-gradient(135deg, var(--brand-grad1), var(--brand-grad2));
+    color: #fff;
+}
+
+#btnPreviewToggle.active i {
+    color: #fff;
 }

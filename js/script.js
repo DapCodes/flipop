@@ -1181,15 +1181,31 @@ function setupTimeTrialUI() {
   const timeBtns = document.getElementById("timeDiffBtns");
   const timeHint = document.getElementById("timeDiffHint");
   const iconSel = document.getElementById("selectIconCat");
-  const chkPrev = document.getElementById("chkPreview10");
+  const btnPrev = document.getElementById("btnPreviewToggle");
+  const iconPrev = document.getElementById("iconPreview");
+  const txtPrev = document.getElementById("previewText");
 
   if (iconSel) {
     iconSel.value = state.iconCategory || "acak";
     iconSel.onchange = () => (state.iconCategory = iconSel.value);
   }
-  if (chkPrev) {
-    chkPrev.checked = !!state.preview10s;
-    chkPrev.onchange = () => (state.preview10s = chkPrev.checked);
+
+  if (btnPrev) {
+    const setState = (on) => {
+      state.preview10s = on;
+      btnPrev.classList.toggle("active", on);
+      btnPrev.setAttribute("aria-pressed", on ? "true" : "false");
+      iconPrev.className = on ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
+      txtPrev.textContent = on ? "Aktif" : "Nonaktif";
+    };
+
+    // inisialisasi awal
+    setState(!!state.preview10s);
+
+    btnPrev.addEventListener("click", () => {
+      setState(!state.preview10s);
+      playSound?.("click");
+    });
   }
 
   if (state.mode === "timetrial" && timeRow && timeBtns && timeHint) {

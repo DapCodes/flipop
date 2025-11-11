@@ -184,8 +184,22 @@ header('Content-Type: text/html; charset=utf-8');
 
   <!-- PENTING: path absolut untuk aset -->
   <link rel="shortcut icon" href="../asset/img/logo-small.svg" type="image/x-icon">
+  <!-- BODY: Satoshi (sudah ada di project kamu) -->
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+
+  <!-- HEAD: Clash Display -->
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet">
+
+  <!-- Font: Fredoka + Nunito -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+
   <link rel="stylesheet" href="../css/style.css">
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+
 </head>
 <body>
   <div class="wrap">
@@ -302,11 +316,13 @@ header('Content-Type: text/html; charset=utf-8');
       </div>
 
       <div class="field-row" id="previewChoiceRow" style="margin-bottom:10px">
-        <label style="font-weight:700; display:block; margin-bottom:6px">Tampilkan kartu 10 detik sebelum mulai?</label>
-        <div style="display:flex; gap:10px; align-items:center">
-          <input type="checkbox" id="chkPreview10" />
-          <label for="chkPreview10">Ya, tampilkan preview 10 detik</label>
-        </div>
+        <label style="font-weight:700; display:block; margin-bottom:6px">
+          Preview Kartu (10 detik) <small>*klik untuk mengubah</small>
+        </label>
+        <button id="btnPreviewToggle" class="btn small ghost" type="button" aria-pressed="false">
+          <i id="iconPreview" class="fa-solid fa-eye-slash"></i>
+          <span id="previewText">Nonaktif</span>
+        </button>
       </div>
 
       <div class="field-row" id="timeDiffRow" style="display:none; margin-bottom:12px">
