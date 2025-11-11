@@ -21,6 +21,21 @@ const el = (tag, cls, txt) => {
   return e;
 };
 
+// ====== Sound ======
+const sounds = {
+  flipOpen: new Audio("../asset/sound/card-sound-open.mp3"),
+  flipClose: new Audio("../asset/sound/card-sound-close.mp3"),
+  win: new Audio("../asset/sound/win.mp3"),
+  lose: new Audio("../asset/sound/lose.mp3"),
+};
+
+function playSound(type) {
+  const s = sounds[type];
+  if (!s) return;
+  s.currentTime = 0;
+  s.play().catch(() => {}); // ignore autoplay restriction
+}
+
 // ====== API URL (fix: gunakan file ini sendiri, tidak hardcode) ======
 const API_URL = window.location.pathname;
 
@@ -687,6 +702,8 @@ function onFlip(cardEl) {
   if (boardEl.classList.contains("locked")) return;
 
   cardEl.classList.add("flipped");
+  playSound("flipOpen"); // 🔊 buka kartu
+
   if (!state.firstPick) {
     state.firstPick = cardEl;
     return;
@@ -705,36 +722,31 @@ function checkPair() {
   movesEl.textContent = state.moves;
 
   if (v1 === v2) {
+    // pasangan cocok
     state.firstPick.classList.add("matched");
     state.secondPick.classList.add("matched");
     state.matchedCount++;
-    if (state.mode === "duel") {
-      if (state.players.turnIndex === 0) state.players.p1.score++;
-      else state.players.p2.score++;
-      // turn tetap pada pemain yang sama ketika match
-    }
     resetSelection();
-    updateHudPlayers();
+    boardEl.classList.remove("locked");
+
+    // cek apakah semua sudah terbuka
     if (state.matchedCount === state.difficulty.pairs) {
       stopTimer(false);
       state.gamePhase = "won";
-      setTimeout(showWin, 450);
-    } else {
-      boardEl.classList.remove("locked");
+      setTimeout(showWin, 500);
     }
   } else {
+    // pasangan salah, tutup kembali
     setTimeout(() => {
+      playSound("flipClose"); // 🔊 tutup kartu
       state.firstPick.classList.remove("flipped");
       state.secondPick.classList.remove("flipped");
       resetSelection();
-      if (state.mode === "duel") {
-        state.players.turnIndex = state.players.turnIndex === 0 ? 1 : 0;
-        updateHudPlayers();
-      }
       boardEl.classList.remove("locked");
     }, 520);
   }
 }
+
 function resetSelection() {
   state.firstPick = null;
   state.secondPick = null;
@@ -915,6 +927,7 @@ function showWin() {
 
   // Simpan hasil (logika score & winner duel sudah ditangani di saveResult())
   if (state.mode === "timetrial") state.timeTrial.result = "menang";
+  playSound("win");
   saveResult();
 }
 
@@ -925,6 +938,7 @@ function closeWin() {
   if (confetti) confetti.innerHTML = "";
 }
 function showLose() {
+  playSound("lose");
   const loseEl =
     document.querySelector(".lose") ||
     (() => {
