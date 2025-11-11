@@ -27,6 +27,7 @@ const sounds = {
   flipClose: new Audio("../asset/sound/card-sound-close.mp3"),
   win: new Audio("../asset/sound/win.mp3"),
   lose: new Audio("../asset/sound/lose.mp3"),
+  click: new Audio("../asset/sound/click.mp3"), // <— clicky
 };
 
 function playSound(type) {
@@ -949,9 +950,9 @@ function showLose() {
           <div class="big">Waktu Habis ⏱️</div>
           <p class="sub">Coba lagi ya. Kamu menemukan <b>${state.matchedCount}</b> dari <b>${state.difficulty.pairs}</b> pasangan.</p>
           <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-            <button class="btn primary" id="btnCobaLagi">Coba Lagi</button>
-            <button class="btn ghost" id="btnGantiDiff">Ganti Pilihan</button>
-            <button class="btn ghost" id="btnKeMenu">Menu</button>
+            <button class="btn primary" id="btnCobaLagi" type="button">Coba Lagi</button>
+            <button class="btn ghost" id="btnGantiDiff" type="button">Ganti Pilihan</button>
+            <button class="btn ghost" id="btnKeMenu" type="button">Menu</button>
           </div>
         `;
       wrap.appendChild(panel);
@@ -961,22 +962,35 @@ function showLose() {
 
   loseEl.style.display = "grid";
 
-  // Tombol aksi
-  loseEl.querySelector("#btnCobaLagi").onclick = () => {
-    closeLose();
-    startGame(state.difficulty.pairs);
-  };
-  loseEl.querySelector("#btnGantiDiff").onclick = () => {
-    closeLose();
-    statsEl.style.display = "none";
-    openDiff();
-  };
+  // Pasang ulang handler dengan aman
+  const btnRetry = loseEl.querySelector("#btnCobaLagi");
+  const btnChange = loseEl.querySelector("#btnGantiDiff");
 
-  // ✅ Tambahkan baris ini
-  // loseEl.querySelector("#btnKeMenu").onclick = goToMenu;
+  if (btnRetry) {
+    btnRetry.replaceWith(btnRetry.cloneNode(true));
+    loseEl.querySelector("#btnCobaLagi").addEventListener("click", () => {
+      closeLose();
+      startGame(state.difficulty.pairs);
+    });
+  }
 
+  if (btnChange) {
+    btnChange.replaceWith(btnChange.cloneNode(true));
+    loseEl.querySelector("#btnGantiDiff").addEventListener("click", () => {
+      closeLose();
+      statsEl.style.display = "none";
+      openDiff();
+    });
+  }
+
+  // Tombol Menu sudah ditangani oleh listener global (id === 'btnKeMenu')
   state.timeTrial.result = "waktu_habis";
   saveResult();
+}
+
+function closeLose() {
+  const loseEl = document.getElementById("lose");
+  if (loseEl) loseEl.style.display = "none";
 }
 
 function clearBoard() {
@@ -1443,5 +1457,66 @@ function firstRunFlow() {
   }
 }
 firstRunFlow();
+
+// ====== CLICKY SOUND FOR ALL INTERACTIVE ELEMENTS ======
+// Definisikan selektor interaktif (kecuali kartu permainan .card)
+const INTERACTIVE_SELECTORS = [
+  "button",
+  ".btn",
+  "[role='button']",
+  "a[href]",
+  "input[type='button']",
+  "input[type='submit']",
+  ".mode-card",
+  ".lb-tab",
+  ".lb-diff-btn",
+  ".choice .btn",
+  "#btnRestart",
+  "#btnHistory",
+  "#btnLeaderboard",
+  "#btnTheme",
+  "#btnCara",
+  "#btnBatal",
+  "#btnPrestart",
+  "#btnCloseHistory",
+  "#btnCloseLb",
+  "#btnNamaBatal",
+  "#btnNamaOK",
+  "#btnMulai",
+  "#btnMainLagi",
+  "#btnGanti",
+  "#btnMenu",
+  "#btnCobaLagi",
+  "#btnGantiDiff",
+  "#btnKeMenu",
+  "#btnCloseHow",
+  "#btnHowNext",
+  "#btnHowPrev",
+  "#howGrid .how-card",
+].join(", ");
+
+// Cek apakah element interaktif (dan bukan kartu game)
+function isInteractive(target) {
+  if (!target) return false;
+  // Abaikan klik pada kartu permainan agar tidak dobel suara dengan flip
+  if (target.closest(".card")) return false;
+  return !!target.closest(INTERACTIVE_SELECTORS);
+}
+
+// Delegasi klik dokumen
+document.addEventListener("click", (e) => {
+  if (isInteractive(e.target)) {
+    playSound("click");
+  }
+});
+
+// Dukungan keyboard (Enter/Space) untuk aksesibilitas
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const active = document.activeElement;
+  if (isInteractive(active)) {
+    playSound("click");
+  }
+});
 
 // ====== Theme persist already handled ======
