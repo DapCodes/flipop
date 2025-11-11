@@ -625,10 +625,10 @@ function startGame(pairs) {
   buildDeck();
   renderBoard();
 
-  // fase awal: flip open (preview modal kita sendiri)
-  flipAll(true);
+  // kartu default tertutup
+  flipAll(false);
   boardEl.classList.add("locked");
-  prestartEl.style.display = "grid";
+  prestartEl.style.display = "grid"; // tetap pakai overlay "Mulai" (opsional)
   countdownEl.style.display = "none";
 
   // Reset skor dan acak starter jika duel
@@ -722,11 +722,21 @@ function checkPair() {
   state.moves++;
   movesEl.textContent = state.moves;
 
+  const isDuel = state.mode === "duel";
+
   if (v1 === v2) {
     // pasangan cocok
     state.firstPick.classList.add("matched");
     state.secondPick.classList.add("matched");
     state.matchedCount++;
+
+    // ✅ Tambah poin untuk pemain aktif jika mode duel
+    if (isDuel) {
+      if (state.players.turnIndex === 0) state.players.p1.score++;
+      else state.players.p2.score++;
+      updateHudPlayers(); // refresh tampilan skor & highlight turn
+    }
+
     resetSelection();
     boardEl.classList.remove("locked");
 
@@ -739,11 +749,17 @@ function checkPair() {
   } else {
     // pasangan salah, tutup kembali
     setTimeout(() => {
-      playSound("flipClose"); // 🔊 tutup kartu
+      playSound("flipClose");
       state.firstPick.classList.remove("flipped");
       state.secondPick.classList.remove("flipped");
       resetSelection();
       boardEl.classList.remove("locked");
+
+      // ✅ Salah tebak: pindah giliran jika mode duel
+      if (isDuel) {
+        state.players.turnIndex = state.players.turnIndex === 0 ? 1 : 0;
+        updateHudPlayers(); // refresh highlight giliran
+      }
     }, 520);
   }
 }
