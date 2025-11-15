@@ -217,15 +217,17 @@ header('Content-Type: text/html; charset=utf-8');
         </div>
         <button class="btn small ghost" id="btnHistory" title="Riwayat">🕘 Riwayat</button>
         <button class="btn small ghost" id="btnLeaderboard" title="Papan Peringkat">🏆 Peringkat</button>
+        
+        <!-- ✅ FIX: Gunakan HANYA <i> untuk icon, bukan <span> wrapper -->
         <button class="btn small ghost" id="btnMusic" title="Musik" aria-label="Toggle musik">
-          <span id="musicIcon" aria-hidden="true"><i class="fa-solid fa-volume-high"></i></span>
+          <i id="musicIcon" class="fa-solid fa-volume-high" aria-hidden="true"></i>
         </button>
+        
         <button class="btn small ghost" id="btnTheme" title="Tema" aria-label="Ganti tema">
           <span id="themeIcon" aria-hidden="true">☀️</span>
         </button>
       </div>
     </header>
-
     <main>
       <section class="welcome" id="welcome">
         <h1>Selamat Datang di <span class="accent"> Flipop</span></h1>
