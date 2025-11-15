@@ -217,6 +217,9 @@ header('Content-Type: text/html; charset=utf-8');
         </div>
         <button class="btn small ghost" id="btnHistory" title="Riwayat">🕘 Riwayat</button>
         <button class="btn small ghost" id="btnLeaderboard" title="Papan Peringkat">🏆 Peringkat</button>
+        <button class="btn small ghost" id="btnMusic" title="Musik" aria-label="Toggle musik">
+          <span id="musicIcon" aria-hidden="true"><i class="fa-solid fa-volume-high"></i></span>
+        </button>
         <button class="btn small ghost" id="btnTheme" title="Tema" aria-label="Ganti tema">
           <span id="themeIcon" aria-hidden="true">☀️</span>
         </button>
@@ -317,11 +320,11 @@ header('Content-Type: text/html; charset=utf-8');
 
       <div class="field-row" id="previewChoiceRow" style="margin-bottom:10px">
         <label style="font-weight:700; display:block; margin-bottom:6px">
-          Preview Kartu (10 detik) <small>*klik untuk mengubah</small>
+          Preview Kartu (10 detik)
         </label>
-        <button id="btnPreviewToggle" class="btn small ghost" type="button" aria-pressed="false">
+        <button id="btnPreviewToggle" class="btn small ghost compact-toggle" type="button" aria-pressed="false">
           <i id="iconPreview" class="fa-solid fa-eye-slash"></i>
-          <span id="previewText">Nonaktif</span>
+          <span id="previewText">Off</span>
         </button>
       </div>
 

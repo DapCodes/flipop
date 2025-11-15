@@ -187,6 +187,24 @@ header {
     background: #FFFFFF;
 }
 
+.compact-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 80px;
+    padding: 8px 14px !important;
+}
+
+.compact-toggle i {
+    font-size: 1em;
+}
+
+.compact-toggle.active {
+    background: linear-gradient(135deg, var(--brand-grad1), var(--brand-grad2)) !important;
+    color: #fff !important;
+}
+
 :root.dark header {
     background: rgba(11, 16, 32, 0.8);
 }

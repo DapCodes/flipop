@@ -30,6 +30,112 @@ const sounds = {
   click: new Audio("../asset/sound/click.mp3"), // <— clicky
 };
 
+// ====== Background Music ======
+const bgMusic = {
+  home: new Audio("../asset/sound/back-sound-home.mp3"),
+  game: new Audio("../asset/sound/back-sound-game.mp3"),
+  current: null,
+  enabled: true,
+  fadeDuration: 1000, // ms
+};
+
+// Setup background music
+Object.values(bgMusic).forEach((audio) => {
+  if (audio instanceof Audio) {
+    audio.loop = true;
+    audio.volume = 0.3; // Volume default 30%
+  }
+});
+
+// Load music preference
+const savedMusicPref = localStorage.getItem("flipop-music");
+if (savedMusicPref !== null) {
+  bgMusic.enabled = savedMusicPref === "true";
+}
+
+function fadeVolume(audio, targetVolume, duration) {
+  const startVolume = audio.volume;
+  const volumeDiff = targetVolume - startVolume;
+  const steps = 20;
+  const stepDuration = duration / steps;
+  let currentStep = 0;
+
+  const interval = setInterval(() => {
+    currentStep++;
+    audio.volume = Math.max(
+      0,
+      Math.min(1, startVolume + (volumeDiff * currentStep) / steps)
+    );
+
+    if (currentStep >= steps) {
+      clearInterval(interval);
+      if (targetVolume === 0) audio.pause();
+    }
+  }, stepDuration);
+}
+
+function switchBgMusic(type) {
+  if (!bgMusic.enabled) return;
+
+  const newMusic = bgMusic[type];
+  if (!newMusic || newMusic === bgMusic.current) return;
+
+  // Fade out current music
+  if (bgMusic.current) {
+    fadeVolume(bgMusic.current, 0, bgMusic.fadeDuration);
+  }
+
+  // Fade in new music
+  bgMusic.current = newMusic;
+  newMusic.currentTime = 0;
+  newMusic.volume = 0;
+  newMusic.play().catch(() => {});
+  fadeVolume(newMusic, 0.3, bgMusic.fadeDuration);
+}
+
+function toggleBgMusic() {
+  bgMusic.enabled = !bgMusic.enabled;
+  localStorage.setItem("flipop-music", bgMusic.enabled);
+
+  if (bgMusic.enabled) {
+    // Aktifkan musik sesuai state saat ini
+    const type = state.gamePhase === "playing" ? "game" : "home";
+    switchBgMusic(type);
+  } else {
+    // Matikan semua musik
+    if (bgMusic.current) {
+      fadeVolume(bgMusic.current, 0, bgMusic.fadeDuration);
+      bgMusic.current = null;
+    }
+  }
+
+  updateMusicIcon();
+}
+
+function updateMusicIcon() {
+  const btn = document.getElementById("btnMusic");
+  const icon = document.getElementById("musicIcon");
+  if (!btn || !icon) return;
+
+  icon.className = bgMusic.enabled
+    ? "fa-solid fa-volume-high"
+    : "fa-solid fa-volume-xmark";
+  btn.setAttribute(
+    "aria-label",
+    bgMusic.enabled ? "Matikan musik" : "Aktifkan musik"
+  );
+  btn.title = bgMusic.enabled ? "Musik: Aktif" : "Musik: Nonaktif";
+}
+
+// Start home music on first interaction
+let musicInitialized = false;
+function initBgMusic() {
+  if (!musicInitialized && bgMusic.enabled) {
+    switchBgMusic("home");
+    musicInitialized = true;
+  }
+}
+
 function playSound(type) {
   const s = sounds[type];
   if (!s) return;
@@ -653,6 +759,7 @@ function startGame(pairs) {
 
   buildDeck();
   renderBoard();
+  switchBgMusic("game");
 
   // kartu default tertutup
   flipAll(false);
@@ -1094,6 +1201,8 @@ function goToMenu() {
   state.players.turnIndex = 0;
   state.gamePhase = "idle";
 
+  switchBgMusic("home");
+
   // Kembali ke menu utama
   statsEl.style.display = "none";
   boardEl.style.display = "none";
@@ -1184,6 +1293,8 @@ function setupTimeTrialUI() {
   const btnPrev = document.getElementById("btnPreviewToggle");
   const iconPrev = document.getElementById("iconPreview");
   const txtPrev = document.getElementById("previewText");
+  document.getElementById("btnTheme").addEventListener("click", toggleTheme);
+  document.getElementById("btnMusic").addEventListener("click", toggleBgMusic);
 
   if (iconSel) {
     iconSel.value = state.iconCategory || "acak";
@@ -1196,10 +1307,9 @@ function setupTimeTrialUI() {
       btnPrev.classList.toggle("active", on);
       btnPrev.setAttribute("aria-pressed", on ? "true" : "false");
       iconPrev.className = on ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
-      txtPrev.textContent = on ? "Aktif" : "Nonaktif";
+      txtPrev.textContent = on ? "10s" : "Off";
     };
 
-    // inisialisasi awal
     setState(!!state.preview10s);
 
     btnPrev.addEventListener("click", () => {
@@ -1675,6 +1785,11 @@ document.addEventListener("keydown", (e) => {
   if (isInteractive(active)) {
     playSound("click");
   }
+});
+
+updateMusicIcon();
+["click", "keydown", "touchstart"].forEach((event) => {
+  document.addEventListener(event, initBgMusic, { once: true });
 });
 
 // ====== Theme persist already handled ======
