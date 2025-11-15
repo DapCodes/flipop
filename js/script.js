@@ -30,12 +30,12 @@ const sounds = {
   click: new Audio("../asset/sound/click.mp3"), // <— clicky
 };
 
-// ====== Background Music (DEFAULT ON) ======
+// ====== Background Music (FIXED COMPLETE) ======
 const bgMusic = {
   home: new Audio("../asset/sound/back-sound-home.mp3"),
   game: new Audio("../asset/sound/back-sound-game.mp3"),
   current: null,
-  enabled: true, // Default true
+  enabled: true,
   fadeDuration: 1000,
 };
 
@@ -47,15 +47,10 @@ Object.values(bgMusic).forEach((audio) => {
   }
 });
 
-// ✅ LOAD PREFERENCE: Jika belum ada setting, default TRUE
+// Load music preference
 const savedMusicPref = localStorage.getItem("flipop-music");
 if (savedMusicPref !== null) {
-  // User sudah pernah set preference
   bgMusic.enabled = savedMusicPref === "true";
-} else {
-  // ✅ First time visitor: set default ON & simpan ke localStorage
-  bgMusic.enabled = true;
-  localStorage.setItem("flipop-music", "true");
 }
 
 function fadeVolume(audio, targetVolume, duration) {
@@ -103,7 +98,7 @@ function toggleBgMusic() {
   localStorage.setItem("flipop-music", bgMusic.enabled);
 
   if (bgMusic.enabled) {
-    // Deteksi state saat ini dan mainkan musik yang sesuai
+    // ✅ Deteksi state saat ini dan mainkan musik yang sesuai
     const type =
       state.gamePhase === "playing" ||
       state.gamePhase === "preview" ||
@@ -143,20 +138,19 @@ function updateMusicIcon() {
 // Start home music on first interaction
 let musicInitialized = false;
 function initBgMusic() {
-  // ✅ Cek apakah musik enabled DAN belum diinisialisasi
   if (!musicInitialized && bgMusic.enabled) {
     switchBgMusic("home");
     musicInitialized = true;
   }
 }
 
-// ✅ Daftarkan event listener HANYA SEKALI
+// ✅ PENTING: Daftarkan event listener HANYA SEKALI saat halaman load
 document.getElementById("btnMusic")?.addEventListener("click", toggleBgMusic);
 
-// ✅ Update icon sesuai state saat load
+// ✅ Panggil updateMusicIcon saat halaman load
 updateMusicIcon();
 
-// ✅ Init musik saat interaksi pertama (jika enabled)
+// ✅ Init musik saat interaksi pertama
 ["click", "keydown", "touchstart"].forEach((event) => {
   document.addEventListener(event, initBgMusic, { once: true });
 });
